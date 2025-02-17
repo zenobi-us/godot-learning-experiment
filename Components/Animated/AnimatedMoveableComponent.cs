@@ -10,11 +10,11 @@ namespace Components
     public enum Direction
     {
         Up = 0,
-        UpLeft,
-        UpRight,
-        DownLeft,
+        LeftUp,
+        RightUp,
+        LeftDown,
         Down,
-        DownRight,
+        RightDown,
         Left,
         Right
     }
@@ -99,33 +99,33 @@ namespace Components
             {
                 return Direction.Left;
             }
-            else if (direction.X < 0 && direction.Y < 0)
-            {
-                return Direction.DownLeft;
-            }
             else if (direction.X < 0 && direction.Y > 0)
             {
-                return Direction.UpLeft;
+                return Direction.LeftDown;
+            }
+            else if (direction.X < 0 && direction.Y < 0)
+            {
+                return Direction.LeftUp;
             }
             else if (direction.X > 0 && direction.Y == 0)
             {
                 return Direction.Right;
             }
-            else if (direction.X == 0 && direction.Y > 0)
+            else if (direction.X == 0 && direction.Y < 0)
             {
                 return Direction.Up;
             }
-            else if (direction.X > 0 && direction.Y > 0)
+            else if (direction.X > 0 && direction.Y < 0)
             {
-                return Direction.UpRight;
+                return Direction.RightUp;
             }
-            else if (direction.X == 0 && direction.Y < 0)
+            else if (direction.X == 0 && direction.Y > 0)
             {
                 return Direction.Down;
             }
-            else if (direction.X > 0 && direction.Y < 0)
+            else if (direction.X > 0 && direction.Y > 0)
             {
-                return Direction.DownRight;
+                return Direction.RightDown;
             }
 
             return Direction.Left;

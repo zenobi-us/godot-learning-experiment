@@ -8,8 +8,8 @@ public partial class YellowPeonIdleState : YellowPeonBaseState
 	public override void Enter()
 	{
 		base.Enter();
-		var direction = this.Component.Direction.GetCurrentDirectionName();
-		this.Sprite.Play($"idle_{direction.ToLower()}");
+		var direction = this.Component.Direction.GetCurrentDirectionName().ToLower();
+		this.Sprite.Play($"idle_{direction}");
 	}
 
 	public override void Update(double delta)

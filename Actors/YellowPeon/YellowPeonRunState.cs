@@ -11,8 +11,8 @@ namespace Actors
 		public override void Enter()
 		{
 			base.Enter();
-			var direction = this.Component.Direction.GetCurrentDirectionName();
-			this.Sprite.Play($"run_${direction.ToLower()}");
+			var direction = this.Component.Direction.GetCurrentDirectionName().ToLower();
+			this.Sprite.Play($"run_${direction}");
 		}
 
 		public override void Update(double delta)
