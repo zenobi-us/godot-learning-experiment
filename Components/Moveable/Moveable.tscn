@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://boavbq5y15fb3"]
+
+[ext_resource type="Script" path="res://Components/Moveable/MoveableComponent.cs" id="1_vp78w"]
+
+[node name="MoveableComponent" type="Node2D"]
+script = ExtResource("1_vp78w")

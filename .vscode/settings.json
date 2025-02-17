@@ -1,0 +1,11 @@
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {},
+  "dotnet.defaultSolution": "Godot-rpg.sln",
+  "dart.flutterSdkPath": "/home/zenobius/.local/share/mise/installs/flutter/3.27.1-stable",
+  "debug.javascript.defaultRuntimeExecutable": {
+    "pwa-node": "/home/zenobius/.local/share/mise/shims/node"
+  },
+  "deno.path": "/home/zenobius/.local/share/mise/shims/deno",
+  "python.defaultInterpreterPath": "/home/zenobius/.local/share/mise/installs/python/3.12.5/bin/python",
+}
