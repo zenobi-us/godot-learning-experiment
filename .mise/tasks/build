@@ -67,6 +67,5 @@ godot --headless \
     "${output_filename}"
 
 mv ./Godot-rpg.csproj.bak ./Godot-rpg.csproj
-rm ./Godot-rpg.csproj.old
 
 echo "Game built successfully!"
