@@ -1,0 +1,42 @@
+name: Pr
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  issues: write
+  pull-requests: write
+  actions: read
+  contents: read
+
+jobs:
+  Check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 #v3
+        with:
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@5bb8f8c1911837cf42064e6490e7634fc842ee7e # v2
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.ASDF_GITHUB_API_TOKEN }}
+        with:
+          version: 2024.11.4
+
+      - name: Setup Godot Project
+        uses: ./.github/actions/setup-godot-project
+
+      - name: Super-linter
+        uses: super-linter/super-linter@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d #v7.2.1
+        env:
+          # To report GitHub Actions status checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🦺 Build
+        run: dotnet build
