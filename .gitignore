@@ -2,3 +2,4 @@
 .godot/
 node_modules/
 *.mjs
+dist/

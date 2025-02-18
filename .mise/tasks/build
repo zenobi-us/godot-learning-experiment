@@ -1,8 +1,72 @@
 #!/usr/bin/env bash
+set -e
 
-#MISE sources=["**/*.c"]
-/home/zenobius/Applications/Godot_v4.3-stable_mono_linux_x86_64/Godot_v4.3-stable_mono_linux.x86_64 \
-    --export-release \
-    --headless \
-    "Linux" \
-    ./game
+#MISE sources=["**/*.cs", "**/*.tscn", "**/*.import", "**/*.png", "**/*.aseprite", "exports_presets.cfg", "global.json", "*.csproj", "*.sln"]
+#USAGE flag "-p --platform <platform>" help="Which platform to build for" {
+#USAGE   choices "Linux" "Windows" "Macos"
+#USAGE }
+#USAGE flag "-r --release" help="Build in release mode. otherwise build in debug mode. default is false"
+#USAGE flag "-c --clean" help="Clean the build directory before building" default="true"
+
+get_output_name() {
+    # shellcheck disable=SC2154 # (it's a global)
+    case "$usage_platform" in
+    "Linux")
+        echo "dist/linux/game"
+        ;;
+    "Windows")
+        echo "dist/win/game"
+        ;;
+    "Macos")
+        echo "dist/mac/game"
+        ;;
+    *) exit 1 ;;
+    esac
+}
+
+get_output_mode() {
+    # shellcheck disable=SC2154 # (it's a global)
+    if [ "$usage_release" = "true" ]; then
+        echo "--export-release"
+        return 0
+    fi
+
+    echo "--export-debug"
+}
+
+create_build_dir() {
+    local target
+
+    target="$(dirname "$1")"
+
+    # shellcheck disable=SC2154 # (it's a global)
+    if [ "$usage_clean" = true ]; then
+        echo "Cleaning build directory..."
+        rm -rf "$target"
+    fi
+
+    echo "Creating build directory..."
+    mkdir -p "$target"
+
+}
+
+output_filename="$(get_output_name)"
+output_mode="$(get_output_mode)"
+
+create_build_dir "$output_filename"
+
+echo "Building game..."
+echo "Mode: ${output_mode}"
+
+# make a tmp backup and restore after build
+cp ./Godot-rpg.csproj ././Godot-rpg.csproj.bak
+
+godot --headless \
+    "${output_mode}" \
+    "${usage_platform}" \
+    "${output_filename}"
+
+mv ./Godot-rpg.csproj.bak ./Godot-rpg.csproj
+rm ./Godot-rpg.csproj.old
+
+echo "Game built successfully!"
