@@ -14,7 +14,7 @@ runs:
 
   steps:
       - run: which dotnet
-        shell: ${inputs.Shell}
+        shell: ${{ inputs.Shell }}
 
       - uses: chickensoft-games/setup-godot@46198e5e97e81c09d8001962fdf4ed8c215bcb50 # v2.1.1
         name: 🤖 Setup Godot
@@ -25,18 +25,18 @@ runs:
           # Use .NET-enabled version of Godot (the default is also true).
           use-dotnet: true
           # Include the Godot Export Templates (the default is false).
-          include-templates: true
+          include-templates: false
 
       - name: 📦 Restore Dependencies
-        shell: ${inputs.Shell}
+        shell: ${{ inputs.Shell }}
         run: |
           dotnet restore
       - name: 🔬 Verify Setup
-        shell: ${inputs.Shell}
+        shell: ${{ inputs.Shell }}
         run: |
           dotnet --version
           godot --version
 
       - name: 🧑‍🔬 Generate .NET Bindings
-        shell: ${inputs.Shell}
+        shell: ${{ inputs.Shell }}
         run: godot --headless --build-solutions --quit || exit 0
