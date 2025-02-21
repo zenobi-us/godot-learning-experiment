@@ -39,4 +39,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🦺 Build
-        run: dotnet build
+        run: mise run build --platform linux --debug --clean
