@@ -26,7 +26,7 @@ dotnet build --no-restore
 
 coverlet \
     "./.godot/mono/temp/bin/Debug" --verbosity detailed \
-    --target $GODOT \
+    --target "$GODOT" \
     --targetargs "--run-tests --coverage --quit-on-finish" \
     --format "opencover" \
     --output "./coverage/coverage.xml" \
@@ -54,26 +54,3 @@ reportgenerator \
 mkdir -p ./badges
 mv ./coverage/report/badge_branchcoverage.svg ./badges/branch_coverage.svg
 mv ./coverage/report/badge_linecoverage.svg ./badges/line_coverage.svg
-
-# Determine OS, open coverage accordingly.
-
-case "$(uname -s)" in
-
-Darwin)
-    echo 'Mac OS X'
-    open coverage/report/index.htm
-    ;;
-
-Linux)
-    echo 'Linux'
-    ;;
-
-CYGWIN* | MINGW32* | MSYS* | MINGW*)
-    echo 'MS Windows'
-    start coverage/report/index.htm
-    ;;
-
-*)
-    echo 'Other OS'
-    ;;
-esac

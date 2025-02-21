@@ -50,4 +50,3 @@ If (!(Test-Path -Path "./badges")) {
 Move-Item "./coverage/report/badge_branchcoverage.svg" "./badges/branch_coverage.svg" -Force
 Move-Item "./coverage/report/badge_linecoverage.svg" "./badges/line_coverage.svg" -Force
 
-Invoke-Expression ("cmd /c start coverage/report/index.htm")

@@ -12,6 +12,7 @@ permissions:
   pull-requests: write
   actions: read
   contents: read
+  statuses: write # read/write to repo custom statuses
 
 jobs:
   Check:
