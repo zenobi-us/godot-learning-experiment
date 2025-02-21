@@ -31,6 +31,7 @@ runs:
         shell: ${{ inputs.Shell }}
         run: |
           dotnet restore
+
       - name: 🔬 Verify Setup
         shell: ${{ inputs.Shell }}
         run: |
