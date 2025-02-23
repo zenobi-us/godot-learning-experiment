@@ -1,3 +1,0 @@
-[gd_scene format=3 uid="uid://cxcn77l5500q8"]
-
-[node name="HitboxComponent" type="CharacterBody2D"]
