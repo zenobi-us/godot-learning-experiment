@@ -1,15 +1,21 @@
-[gd_scene load_steps=25 format=3 uid="uid://bhv3wy6cq3dsy"]
+[gd_scene load_steps=29 format=3 uid="uid://bhv3wy6cq3dsy"]
 
-[ext_resource type="Script" path="res://ecs/Main.cs" id="1_vht1c"]
-[ext_resource type="Script" path="res://ecs/systems/AnimationSystem.cs" id="2_0j0r7"]
-[ext_resource type="Script" path="res://ecs/core/EventManager.cs" id="3_hdkvm"]
-[ext_resource type="Script" path="res://ecs/core/EntityManager.cs" id="4_4fmml"]
-[ext_resource type="Script" path="res://ecs/systems/MovementSystem.cs" id="5_g2vkr"]
-[ext_resource type="Script" path="res://ecs/systems/InputSystem.cs" id="6_0o1sw"]
-[ext_resource type="Script" path="res://ecs/components/InputComponent.cs" id="7_jj0yb"]
-[ext_resource type="Script" path="res://ecs/components/VelocityComponent.cs" id="8_c2y1x"]
-[ext_resource type="Script" path="res://ecs/components/PositionComponent.cs" id="9_bnow4"]
-[ext_resource type="Texture2D" uid="uid://dcl88m07ejqjr" path="res://ecs/assets/idle full sprite sheet.png" id="10_r5uh5"]
+[ext_resource type="Script" path="res://Scenes/Main.cs" id="1_vht1c"]
+[ext_resource type="Script" path="res://systems/AnimationSystem.cs" id="2_0j0r7"]
+[ext_resource type="Script" path="res://core/EventManager.cs" id="3_hdkvm"]
+[ext_resource type="Script" path="res://core/EntityManager.cs" id="4_4fmml"]
+[ext_resource type="Script" path="res://systems/MovementSystem.cs" id="5_g2vkr"]
+[ext_resource type="Script" path="res://systems/InputSystem.cs" id="6_0o1sw"]
+[ext_resource type="Script" path="res://systems/BehaviourTreeSystem.cs" id="7_5viwm"]
+[ext_resource type="Script" path="res://components/InputComponent.cs" id="7_jj0yb"]
+[ext_resource type="Script" path="res://components/VelocityComponent.cs" id="8_c2y1x"]
+[ext_resource type="Script" path="res://components/PositionComponent.cs" id="9_bnow4"]
+[ext_resource type="Texture2D" uid="uid://dcl88m07ejqjr" path="res://assets/idle full sprite sheet.png" id="10_r5uh5"]
+[ext_resource type="Script" path="res://components/BehaviourTreeComponent.cs" id="11_wxe74"]
+[ext_resource type="Script" path="res://entities/BasicEntityBehaviourTree.cs" id="12_8f7ow"]
+
+[sub_resource type="Resource" id="Resource_ut11e"]
+script = ExtResource("12_8f7ow")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xii1v"]
 atlas = ExtResource("10_r5uh5")
@@ -110,25 +116,27 @@ height = 12.0
 [node name="Main" type="Node"]
 script = ExtResource("1_vht1c")
 
-[node name="AnimationSystem" type="Node" parent="."]
-script = ExtResource("2_0j0r7")
-EntityManagerPath = NodePath("../EntityManager")
-
 [node name="EventManager" type="Node" parent="."]
 script = ExtResource("3_hdkvm")
 
 [node name="EntityManager" type="Node" parent="."]
 script = ExtResource("4_4fmml")
 
+[node name="AnimationSystem" type="Node" parent="."]
+script = ExtResource("2_0j0r7")
+EntityManagerPath = NodePath("../EntityManager")
+
 [node name="MovementSystem" type="Node" parent="."]
 script = ExtResource("5_g2vkr")
 EventManagerPath = NodePath("../EventManager")
 EntityManagerPath = NodePath("../EntityManager")
 
-[node name="RenderSystem" type="Node" parent="."]
-
 [node name="InputSystem" type="Node" parent="."]
 script = ExtResource("6_0o1sw")
+EntityManagerPath = NodePath("../EntityManager")
+
+[node name="BehaviourTreeSystem" type="Node" parent="."]
+script = ExtResource("7_5viwm")
 EntityManagerPath = NodePath("../EntityManager")
 
 [node name="Player" type="CharacterBody2D" parent="." groups=["entities", "player"]]
@@ -143,6 +151,10 @@ script = ExtResource("8_c2y1x")
 
 [node name="PositionComponent" type="Node" parent="Player"]
 script = ExtResource("9_bnow4")
+
+[node name="BehaviourTreeComponent" type="Node" parent="Player"]
+script = ExtResource("11_wxe74")
+BehaviourResource = SubResource("Resource_ut11e")
 
 [node name="PlayerAnimation" type="AnimatedSprite2D" parent="Player"]
 sprite_frames = SubResource("SpriteFrames_vkbiv")

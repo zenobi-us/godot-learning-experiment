@@ -1,3 +1,4 @@
+using System;
 // EntityManager.cs (Updated)
 using Godot;
 using System.Collections.Generic;
@@ -28,6 +29,28 @@ namespace core
             {
                 _entities.Add(node);
             }
+        }
+
+        /**
+         * Programatically add a child node as a component
+         */
+        public T AddComponent<T>(Node node, T component) where T : Node
+        {
+            if (component == null)
+            {
+                GD.PushError("A component is required.");
+                return null; // Or throw an exception: throw new System.ArgumentNullException(nameof(node), "Node cannot be null.");
+            }
+
+            if (GetComponent<T>(node) != null)
+            {
+                GD.PushWarning($"Component of type {typeof(T).Name} already exists on node {node.Name}.");
+                return GetComponent<T>(node); // Or return null, or throw an exception depending on desired behavior
+            }
+
+            node.AddChild(component);
+            GD.Print($"Component of type {typeof(T).Name} added to node {node.Name}."); // Add log for debugging
+            return component;
         }
 
         // Get a component node of type T from an entity

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace systems
 {
-
+    [GlobalClass]
     public partial class InputSystem : core.BaseSystem
     {
 
@@ -38,26 +38,6 @@ namespace systems
 
             vel.Velocity = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down");
 
-            // // Reset velocity
-            // vel.Velocity = new Vector2(0, 0);
-
-            // // Check keyboard input
-            // if (Input.IsActionPressed("ui_right"))
-            // {
-            //     vel.Velocity = new Vector2(input.Speed, 0);
-            // }
-            // if (Input.IsActionPressed("ui_left"))
-            // {
-            //     vel.Velocity = new Vector2(-input.Speed, 0);
-            // }
-            // if (Input.IsActionPressed("ui_down"))
-            // {
-            //     vel.Velocity = new Vector2(0, input.Speed);
-            // }
-            // if (Input.IsActionPressed("ui_up"))
-            // {
-            //     vel.Velocity = new Vector2(0, -input.Speed);
-            // }
         }
     }
 }
