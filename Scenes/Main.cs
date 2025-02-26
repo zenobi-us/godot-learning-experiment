@@ -16,6 +16,6 @@ public partial class Main : Node
 
     private void OnEntityMoved(events.EntityMovedEvent evt)
     {
-        GD.Print($"Entity {evt.EntityId} moved from ({evt.OldX}, {evt.OldY}) to ({evt.NewX}, {evt.NewY})");
+        // GD.Print($"Entity {evt.EntityId} moved from ({evt.OldX}, {evt.OldY}) to ({evt.NewX}, {evt.NewY})");
     }
 }

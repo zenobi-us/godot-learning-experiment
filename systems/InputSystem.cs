@@ -28,14 +28,17 @@ namespace systems
             base._Process(delta);
 
             List<Node> entities = GetEntities();
+            if (entities.Count <= 0)
+            {
+                return;
+            }
 
             // player can only control one at a time.
             Node controlledEntity = entities[0];
 
 
-            components.InputComponent input = _entityManager.GetComponent<components.InputComponent>(controlledEntity);
             components.VelocityComponent vel = _entityManager.GetComponent<components.VelocityComponent>(controlledEntity);
-
+            vel.Velocity = Vector2.Zero;
             vel.Velocity = Input.GetVector("ui_left", "ui_right", "ui_up", "ui_down");
 
         }

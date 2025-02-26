@@ -1,4 +1,4 @@
-[gd_scene load_steps=29 format=3 uid="uid://bhv3wy6cq3dsy"]
+[gd_scene load_steps=30 format=3 uid="uid://bhv3wy6cq3dsy"]
 
 [ext_resource type="Script" path="res://Scenes/Main.cs" id="1_vht1c"]
 [ext_resource type="Script" path="res://systems/AnimationSystem.cs" id="2_0j0r7"]
@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://dcl88m07ejqjr" path="res://assets/idle full sprite sheet.png" id="10_r5uh5"]
 [ext_resource type="Script" path="res://components/BehaviourTreeComponent.cs" id="11_wxe74"]
 [ext_resource type="Script" path="res://entities/BasicEntityBehaviourTree.cs" id="12_8f7ow"]
+[ext_resource type="Script" path="res://entities/BehaviourTreeUI.cs" id="14_xd1hv"]
 
 [sub_resource type="Resource" id="Resource_ut11e"]
 script = ExtResource("12_8f7ow")
@@ -142,10 +143,6 @@ EntityManagerPath = NodePath("../EntityManager")
 [node name="Player" type="CharacterBody2D" parent="." groups=["entities", "player"]]
 metadata/_edit_group_ = true
 
-[node name="InputComponent" type="Node" parent="Player"]
-script = ExtResource("7_jj0yb")
-Speed = 900.0
-
 [node name="VelocityComponent" type="Node" parent="Player"]
 script = ExtResource("8_c2y1x")
 
@@ -156,6 +153,9 @@ script = ExtResource("9_bnow4")
 script = ExtResource("11_wxe74")
 BehaviourResource = SubResource("Resource_ut11e")
 
+[node name="InputComponent" type="Node" parent="Player"]
+script = ExtResource("7_jj0yb")
+
 [node name="PlayerAnimation" type="AnimatedSprite2D" parent="Player"]
 sprite_frames = SubResource("SpriteFrames_vkbiv")
 frame_progress = 0.507662
@@ -163,3 +163,17 @@ frame_progress = 0.507662
 [node name="PlayerCollision2D" type="CollisionShape2D" parent="Player"]
 position = Vector2(0, 9)
 shape = SubResource("CapsuleShape2D_c6d8j")
+
+[node name="Node" type="Node" parent="."]
+
+[node name="Tree" type="Tree" parent="Node"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 292.0
+offset_bottom = 372.0
+column_titles_visible = true
+allow_search = false
+enable_recursive_folding = false
+script = ExtResource("14_xd1hv")
+EntityPath = NodePath("../../Player")
+EntityManagerPath = NodePath("../../EntityManager")

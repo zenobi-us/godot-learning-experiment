@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.Collections.Generic;
 
 namespace systems
@@ -26,34 +25,6 @@ namespace systems
             _eventManager = GetNode<core.EventManager>(EventManagerPath);
 
             GD.Print("MovementSystem Ready");
-        }
-
-        /**
-         * A method that takes an delta, vector2 input, and a character body2d as input.
-          returns a vector2
-         */
-        public Vector2 AcceleterateEntity(
-            double delta,
-            components.PositionComponent position,
-            components.VelocityComponent velocity
-        )
-        {
-
-            float speed = (float)velocity.ACCELERATION * (float)delta;
-
-            double x = Mathf.MoveToward(
-                position.Position.X,
-                velocity.MAX_SPEED * velocity.Velocity.X,
-                speed
-            );
-
-            double y = Mathf.MoveToward(
-                position.Position.Y,
-                velocity.MAX_SPEED * velocity.Velocity.Y,
-                speed
-            );
-
-            return new Vector2((float)x, (float)y);
         }
 
         public override void _Process(double delta)
@@ -84,20 +55,23 @@ namespace systems
                     continue;
                 }
 
-                var movement = AcceleterateEntity(
-                    delta,
-                    position,
-                    velocity
+                var movement = new Vector2(
+                    (float)velocity.MAX_SPEED * velocity.Velocity.X,
+                    (float)velocity.MAX_SPEED * velocity.Velocity.Y
                 );
                 var originalPosition = characterBody2D.Position;
 
-                // update the component
-                position.Position = movement;
 
                 // move and slide the entity based on its velocity and acceleration
                 characterBody2D.Velocity = movement;
 
                 characterBody2D.MoveAndSlide();
+
+                // update the component
+                position.Position = new Vector2(
+                    characterBody2D.Position.X,
+                    characterBody2D.Position.Y
+                );
 
                 _eventManager.Publish(
                     new events.EntityMovedEvent(
