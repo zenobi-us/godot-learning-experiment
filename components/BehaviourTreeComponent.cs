@@ -1,7 +1,5 @@
 using Godot;
 using BehaviourTree;
-using System.Reflection;
-using System.Linq;
 
 namespace components
 {
@@ -11,7 +9,7 @@ namespace components
         [Export]
         public core.BehaviourTreeResource BehaviourResource { get; set; }
 
-        public BehaviourTree.IBehaviour<behaviours.BehaviourTreeBlackboardContext> CreateInstance()
+        public IBehaviour<behaviours.BehaviourTreeBlackboardContext> CreateInstance()
         {
             if (BehaviourResource == null)
             {
@@ -19,26 +17,23 @@ namespace components
                 return null;
             }
 
-            BehaviourTree.IBehaviour<behaviours.BehaviourTreeBlackboardContext> behaviour = BehaviourResource.GetTree();
-            GD.Print($"BehaviourTree type: {BehaviourTree?.GetType().Name ?? "null"}");
-
+            IBehaviour<behaviours.BehaviourTreeBlackboardContext> behaviour = BehaviourResource.GetTree();
             return behaviour;
-
         }
 
-        public IBehaviour<behaviours.BehaviourTreeBlackboardContext> BehaviourTree { get; set; }
+        public IBehaviour<behaviours.BehaviourTreeBlackboardContext> Behaviour { get; set; }
 
         public override void _Ready()
         {
             base._Ready();
-            BehaviourTree = CreateInstance();
-            if (BehaviourTree == null)
+            Behaviour = CreateInstance();
+            if (Behaviour == null)
             {
                 GD.PrintErr("Failed to instantiate BehaviourTree from resource.");
             }
             else
             {
-                GD.Print($"BehaviourTree instantiated: {BehaviourTree.GetType().Name}");
+                GD.Print($"BehaviourTree instantiated: {Behaviour.Name}");
             }
         }
 

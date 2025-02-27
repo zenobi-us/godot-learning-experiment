@@ -28,7 +28,7 @@ namespace systems
             foreach (Node entity in entities)
             {
                 components.BehaviourTreeComponent btComponent = _entityManager.GetComponent<components.BehaviourTreeComponent>(entity);
-                if (btComponent == null || btComponent.BehaviourTree == null)
+                if (btComponent == null || btComponent.Behaviour == null)
                 {
                     continue;
                 }
@@ -42,7 +42,7 @@ namespace systems
                     (long)Time.GetUnixTimeFromSystem()
                 );
 
-                btComponent.BehaviourTree.Tick(context);
+                btComponent.Behaviour.Tick(context);
             }
         }
     }

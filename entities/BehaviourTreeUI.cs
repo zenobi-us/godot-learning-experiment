@@ -31,14 +31,14 @@ namespace entities
             _btComponent = _entityManager.GetComponent<BehaviourTreeComponent>(_entity);
 
             HideRoot = true;
+            GD.Print("Dislaying BehaviourTree", _btComponent.Behaviour);
 
-            RenderBehaviourTree(this.GetRoot(), _btComponent.BehaviourTree);
+            RenderBehaviourTree(this.GetRoot(), _btComponent.Behaviour);
         }
 
         public override void _PhysicsProcess(double delta)
         {
-            this.Clear();
-            RenderBehaviourTree(this.GetRoot(), _btComponent.BehaviourTree);
+            UpdateTree(this.GetRoot());
         }
 
 
@@ -56,7 +56,6 @@ namespace entities
             }
         }
 
-
         private void RenderBehaviourTree(TreeItem parent, DecoratorBehaviour<BehaviourTreeBlackboardContext> obj)
         {
             RenderInternal(parent, obj);
@@ -68,36 +67,46 @@ namespace entities
             RenderInternal(parent, obj);
         }
 
+
         private TreeItem RenderInternal(TreeItem parent, IBehaviour<BehaviourTreeBlackboardContext> obj)
         {
             var item = CreateItem(parent);
+            var meta = new TreeItemMeta(obj);
 
-            item.SetText(0, GetName(obj));
-            item.SetMetadata(0, obj.GetHashCode());
+            GD.Print($"Created Tree Item for ${obj}:${obj.GetHashCode()}");
+
+            item.SetMetadata(0, meta);
             item.SetEditable(0, false);
-            item.SetCustomColor(0, GetColor(obj.Status));
+
+            item.SetText(0, meta.Name);
+            item.SetCustomColor(0, meta.Color);
 
             return item;
         }
-
-
-        private static readonly Color ReadyBrush = Colors.DarkGray;
-        private static readonly Color RunningBrush = Colors.Yellow;
-        private static readonly Color SuccessBrush = Colors.Green;
-        private static readonly Color FailureBrush = Colors.Red;
-        private static Color GetColor(BehaviourStatus status)
+        private void UpdateTree(TreeItem item)
         {
-            switch (status)
+
+            UpdateInternal(item);
+
+            TreeItem child = item.GetFirstChild();
+            while (child != null)
             {
-                case BehaviourStatus.Ready: return ReadyBrush;
-                case BehaviourStatus.Running: return RunningBrush;
-                case BehaviourStatus.Succeeded: return SuccessBrush;
-                case BehaviourStatus.Failed: return FailureBrush;
-                default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
+                UpdateInternal(child);
+                child = child.GetNextInTree();
             }
         }
 
-        private static string GetName(IBehaviour<BehaviourTreeBlackboardContext> obj)
+        private void UpdateInternal(TreeItem item)
+        {
+            TreeItemMeta meta = item.GetMetadata(0).As<TreeItemMeta>();
+            item.SetCustomColor(0, meta.Color);
+        }
+
+    }
+
+    public static class TreeHelpers
+    {
+        public static string GetName(IBehaviour<BehaviourTreeBlackboardContext> obj)
         {
             if (!string.IsNullOrWhiteSpace(obj.Name))
             {
@@ -108,6 +117,42 @@ namespace entities
 
             return type.Name;
         }
+
+
+        private static readonly Color ReadyBrush = Colors.DarkGray;
+        private static readonly Color RunningBrush = Colors.SkyBlue;
+        private static readonly Color SuccessBrush = Colors.Green;
+        private static readonly Color FailureBrush = Colors.Red;
+
+        public static Color GetColor(BehaviourStatus status)
+        {
+            switch (status)
+            {
+                case BehaviourStatus.Ready: return ReadyBrush;
+                case BehaviourStatus.Running: return RunningBrush;
+                case BehaviourStatus.Succeeded: return SuccessBrush;
+                case BehaviourStatus.Failed: return FailureBrush;
+                default: throw new ArgumentOutOfRangeException(nameof(status), status, null);
+            }
+        }
+    }
+
+    public partial class TreeItemMeta : GodotObject
+    {
+        public IBehaviour<BehaviourTreeBlackboardContext> Behaviour { get; }
+        public string Name;
+
+        public Color Color
+        {
+            get => TreeHelpers.GetColor(Behaviour.Status);
+        }
+
+        public TreeItemMeta(IBehaviour<BehaviourTreeBlackboardContext> obj)
+        {
+            this.Name = TreeHelpers.GetName(obj);
+            this.Behaviour = obj;
+        }
+
     }
 
 }
