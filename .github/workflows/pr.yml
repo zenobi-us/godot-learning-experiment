@@ -16,7 +16,19 @@ permissions:
 
 jobs:
   Check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 #v3
+        with:
+          fetch-depth: 0
+      # TODO: add tests/lint/dangerjs review
+
+  Preview:
+    needs: Check
     strategy:
+      fail-fast: false
       matrix:
         include:
           - on: ubuntu-latest
