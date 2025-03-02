@@ -80,7 +80,7 @@ jobs:
 
       - name: Zip the dist/bin directory
         id: zip-dir
-        uses: ./.github/actions/zip-directory
+        uses: ./.github/actions/make-zip-file
         with:
           path-globs: |
             ./dist/${{ matrix.platform }}/*
