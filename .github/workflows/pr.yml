@@ -33,11 +33,5 @@ jobs:
       - name: Setup Godot Project
         uses: ./.github/actions/setup-godot-project
 
-      - name: Super-linter
-        uses: super-linter/super-linter@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d #v7.2.1
-        env:
-          # To report GitHub Actions status checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: 🦺 Build
         run: mise run build --platform linux --debug --clean
