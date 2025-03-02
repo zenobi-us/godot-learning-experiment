@@ -3,7 +3,7 @@ set -e
 
 #MISE sources=["**/*.cs", "**/*.tscn", "**/*.import", "**/*.png", "**/*.aseprite", "exports_presets.cfg", "global.json", "*.csproj", "*.sln"]
 #USAGE flag "-p --platform <platform>" help="Which platform to build for" {
-#USAGE   choices "linux" "Windows" "Macos"
+#USAGE   choices "linux" "windows" "macos"
 #USAGE   default "linux"
 #USAGE }
 #USAGE flag "-r --release" help="Build in release mode. otherwise build in debug mode. default is false"

@@ -50,11 +50,11 @@ jobs:
       matrix:
         include:
           - on: ubuntu-latest
-            platform: Linux
+            platform: linux
           # - on: windows-latest
-          #   platform: Windows
+          #   platform: windows
           # - on: macos-latest
-          #   platform: Macos
+          #   platform: macos
 
     runs-on: "${{ matrix.on }}"
 
