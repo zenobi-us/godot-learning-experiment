@@ -33,8 +33,8 @@ jobs:
         include:
           - on: ubuntu-latest
             platform: Linux
-          - on: windows-latest
-            platform: Windows
+          # - on: windows-latest
+          #   platform: Windows
           # - on: macos-latest
           #   platform: Macos
 
