@@ -45,7 +45,19 @@ jobs:
 
   Deploy:
     needs: Process
-    runs-on: ubuntu-latest
+    if: ${{ needs.Process.outputs.releases_created == 'true' }}
+    strategy:
+      matrix:
+        include:
+          - on: ubuntu-latest
+            platform: Linux
+          - on: windows-latest
+            platform: Windows
+          # - on: macos-latest
+          #   platform: Macos
+
+    runs-on: "${{ matrix.on }}"
+
     steps:
       - name: Checkout
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 #v3
@@ -61,22 +73,22 @@ jobs:
       - name: Setup Godot Project
         uses: ./.github/actions/setup-godot-project
 
-      - name: Super-linter
-        uses: super-linter/super-linter@85f7611e0f7b53c8573cca84aa0ed4344f6f6a4d #v7.2.1
-        env:
-          # To report GitHub Actions status checks
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: 🦺 Build
-        run: dotnet build
-
-      - if: ${{ needs.Process.outputs.releases_created == 'true' }}
-        id: production-deployment
+      - name: Build
         run: |
-          echo "public build"
-          gh release upload ${{ needs.Process.outputs.tagname }} ./dist/bin
+          mise run build \
+            --release \
+            --platform "${{ matrix.platform }}" \
+            --clean
 
-      - if: ${{ needs.Process.outputs.prs_created == 'true' }}
-        id: development-deployment
-        run: |
-          echo "dev build"
+      - name: Zip the dist/bin directory
+        id: zip-dir
+        uses: ./.github/actions/zip-directory
+        with:
+          path-globs: |
+            ./dist/${{ matrix.platform }}/*
+          output-file: "${{ matrix.platform }}-game"
+
+      - uses: ./.github/actions/upload-release
+        with:
+          tagname: "${{needs.Process.outputs.tagname}}"
+          filepath: "${{ steps.zip-dir.outputs.zip-path }}"

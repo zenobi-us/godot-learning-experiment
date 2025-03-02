@@ -16,7 +16,17 @@ permissions:
 
 jobs:
   Check:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - on: ubuntu-latest
+            platform: Linux
+          - on: windows-latest
+            platform: Windows
+          # - on: macos-latest
+          #   platform: Macos
+
+    runs-on: "${{ matrix.on }}"
 
     steps:
       - name: Checkout
@@ -28,10 +38,30 @@ jobs:
         env:
           GITHUB_API_TOKEN: ${{ secrets.ASDF_GITHUB_API_TOKEN }}
         with:
-          version: 2025.2.7
+          version: 2024.11.4
 
       - name: Setup Godot Project
         uses: ./.github/actions/setup-godot-project
 
-      - name: 🦺 Build
-        run: mise run build --platform linux --debug --clean
+      - name: Build
+        run: |
+          mise run build \
+            --platform "${{ matrix.platform }}" \
+            --clean
+
+      - name: Zip the dist/bin directory
+        id: zip-dir
+        uses: ./.github/actions/zip-directory
+        with:
+          path-globs: |
+            ./dist/${{ matrix.platform }}/*
+          output-file: "${{ matrix.platform }}-game"
+
+      - name: Upload prerelease
+        uses: ./.github/actions/upload-release
+        with:
+          title: "PR #${{ github.event.number }} Prerelease"
+          tagname: "pr-${{ github.event.number }}"
+          prerelease: "true" #
+          filepath: "${{ steps.zip-dir.outputs.zip-path }}"
+          notes: "Automated prerelease for PR #${{ github.event.number }} created on ${{ github.sha }}"

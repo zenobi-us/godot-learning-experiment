@@ -3,26 +3,16 @@ set -e
 
 #MISE sources=["**/*.cs", "**/*.tscn", "**/*.import", "**/*.png", "**/*.aseprite", "exports_presets.cfg", "global.json", "*.csproj", "*.sln"]
 #USAGE flag "-p --platform <platform>" help="Which platform to build for" {
-#USAGE   choices "Linux" "Windows" "Macos"
-#USAGE   default "Linux"
+#USAGE   choices "linux" "Windows" "Macos"
+#USAGE   default "linux"
 #USAGE }
 #USAGE flag "-r --release" help="Build in release mode. otherwise build in debug mode. default is false"
 #USAGE flag "-c --clean" help="Clean the build directory before building" default="true"
 
 get_output_name() {
     # shellcheck disable=SC2154 # (it's a global)
-    case "$usage_platform" in
-    "Linux")
-        echo "dist/linux/game"
-        ;;
-    "Windows")
-        echo "dist/win/game"
-        ;;
-    "Macos")
-        echo "dist/mac/game"
-        ;;
-    *) exit 1 ;;
-    esac
+    echo "dist/${usage_platform}/game"
+
 }
 
 get_output_mode() {
