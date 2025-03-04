@@ -1,9 +1,7 @@
-using Godot;
 using BehaviourTree;
 using BehaviourTree.FluentBuilder;
 using components;
-using System;
-using BehaviourTree.Composites;
+using systems;
 
 namespace behaviours
 {
@@ -11,17 +9,14 @@ namespace behaviours
     public static class BehaviourTrees
     {
 
-        public static IBehaviour<behaviours.BehaviourTreeBlackboardContext> FollowsMouseBehaviour()
+        public static IBehaviour<BehaviourTreeBlackboardContext> FollowsMouseBehaviour()
         {
-            var userMousePositionId = "User Mouse";
+            var userMousePositionId = UserMouseSystem.MouseEntityName;
             var patrolPositionId = "Patrol";
 
-            return FluentBuilder.Create<behaviours.BehaviourTreeBlackboardContext>()
+            return FluentBuilder.Create<BehaviourTreeBlackboardContext>()
                 .Sequence("Follow the mouse")
-                    .Do("Set mouse as target", BehaviourActions.SetTargetPosition(
-                        userMousePositionId,
-                        ctx => ctx.MousePosition
-                    ))
+                    .Do("Target the user mouse", BehaviourActions.SetEntityAsTargetFactory(UserMouseSystem.MouseEntityName))
                     .Selector("Choose")
                         .Subtree(HuntMouseBehaviour(patrolPositionId, userMousePositionId))
                         .Subtree(PatrolBehaviour(patrolPositionId, userMousePositionId))
@@ -30,25 +25,25 @@ namespace behaviours
                 .Build();
         }
 
-        public static IBehaviour<behaviours.BehaviourTreeBlackboardContext> HuntMouseBehaviour(string patrolPositionId, string mousePositionId)
+        public static IBehaviour<BehaviourTreeBlackboardContext> HuntMouseBehaviour(string patrolPositionId, string mousePositionId)
         {
-            return FluentBuilder.Create<behaviours.BehaviourTreeBlackboardContext>()
+            return FluentBuilder.Create<BehaviourTreeBlackboardContext>()
                 .Sequence("Hunt Target")
-                    .Condition("Is mouse in reach?", BehaviourConditions.IsTargetPositionInReach(mousePositionId, 400))
+                    .Condition("Is mouse in reach?", BehaviourConditions.IsTargetEntityInReach(mousePositionId, 400))
                     .Do("Stop patrolling", BehaviourActions.RemoveTargetPosition(patrolPositionId))
-                    .Do("Move to target", BehaviourActions.MoveToTargetPosition(mousePositionId))
+                    .Do("Move to target", BehaviourActions.MoveToTargetPositionFactory(mousePositionId))
                 .End()
                 .Build();
         }
 
-        public static IBehaviour<behaviours.BehaviourTreeBlackboardContext> PatrolBehaviour(string patrolPositionId, string mousePositionId)
+        public static IBehaviour<BehaviourTreeBlackboardContext> PatrolBehaviour(string patrolPositionId, string mousePositionId)
         {
 
-            return FluentBuilder.Create<behaviours.BehaviourTreeBlackboardContext>()
+            return FluentBuilder.Create<BehaviourTreeBlackboardContext>()
                 .Sequence("Patrol")
-                    .Condition("Is mouse out of reach?", BehaviourConditions.IsTargetPositionOutOfReach(mousePositionId, 400))
+                    .Condition("Is mouse out of reach?", BehaviourConditions.IsTargetEntityOutOfReach(mousePositionId, 400))
                     .Do("Set random position", BehaviourActions.SetRandomNearbyTargetPosition(patrolPositionId, 400))
-                    .Do("Patrol to position", BehaviourActions.MoveToTargetPosition(patrolPositionId))
+                    .Do("Patrol to position", BehaviourActions.MoveToTargetPositionFactory(patrolPositionId))
                 .End()
                 .Build();
         }

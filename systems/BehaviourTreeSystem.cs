@@ -33,12 +33,10 @@ namespace systems
                     continue;
                 }
 
-                var mousePosition = GetViewport().GetMousePosition();
 
                 behaviours.BehaviourTreeBlackboardContext context = new behaviours.BehaviourTreeBlackboardContext(
                     entity,
                     _entityManager,
-                    mousePosition,
                     (long)Time.GetUnixTimeFromSystem()
                 );
 

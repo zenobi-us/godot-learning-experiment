@@ -36,6 +36,11 @@ namespace components
         {
             TargetEntity = entity;
         }
+        public TargetEntityComponent(Node entity, string entityId)
+        {
+            TargetEntity = entity;
+            Id = entityId;
+        }
         public TargetEntityComponent()
         {
         }

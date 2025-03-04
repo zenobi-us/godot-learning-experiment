@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using Godot;
-using Godot.Collections;
 
 namespace behaviours
 {
@@ -21,22 +19,14 @@ namespace behaviours
          */
         public core.EntityManager EntityManager { get; }
 
-        /*
-         * Current mouse position
-         */
-        public Vector2 MousePosition { get; set; }
-
-
         public BehaviourTreeBlackboardContext(
             Node entity,
             core.EntityManager entityManager,
-            Vector2 mousePosition,
             long timeStampInMilliseconds)
         {
             _timeStampInMilliseconds = timeStampInMilliseconds;
             Entity = entity;
             EntityManager = entityManager;
-            MousePosition = mousePosition;
         }
 
         public long GetTimeStampInMilliseconds()

@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
-using System.Numerics;
 using BehaviourTree;
 using components;
+using core;
 using Godot;
 
 namespace behaviours
@@ -11,22 +11,44 @@ namespace behaviours
     public static class BehaviourActions
     {
 
-        public static BehaviourStatus SetEntityAsTarget(
-            BehaviourTreeBlackboardContext context,
-            Node target
-        )
+        public static BehaviourStatus SetEntityAsTarget(BehaviourTreeBlackboardContext context, string targetEntityId)
         {
+            var targetEntity = context.EntityManager.GetEntitiesWithComponents(typeof(NameableComponent))
+                .Where(entity =>
+                {
+                    return context.EntityManager.HasComponent<NameableComponent>(entity, targetEntityId);
+                })
+                .FirstOrDefault();
+            var targetEntityComponent = context.EntityManager.GetComponent<TargetEntityComponent>(context.Entity, targetEntityId);
 
-            if (context.EntityManager.HasComponent<TargetEntityComponent>(context.Entity))
+            // target doesn't exist
+            if (targetEntity == null)
             {
-                context.EntityManager.GetComponent<TargetEntityComponent>(context.Entity).TargetEntity = target;
+                GD.Print($"No entity with NameableComponent.Id = {targetEntityId}");
+                return BehaviourStatus.Failed;
+            }
+
+
+            if (targetEntityComponent == null)
+            {
+                context.EntityManager.AddComponent(context.Entity, new TargetEntityComponent(targetEntity, targetEntityId));
+                GD.Print($"Created TargetEntityComponent for = {targetEntityId}");
                 return BehaviourStatus.Succeeded;
             }
 
-            context.EntityManager.AddComponent(context.Entity, new TargetEntityComponent(target));
+            targetEntityComponent.Id = targetEntityId;
+            targetEntityComponent.TargetEntity = targetEntity;
 
-
+            GD.Print($"Updated TargetEntityComponent for = {targetEntityId}");
             return BehaviourStatus.Succeeded;
+        }
+
+        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetEntityAsTargetFactory(string targetEntityId)
+        {
+            return (context) =>
+                {
+                    return SetEntityAsTarget(context, targetEntityId);
+                };
         }
 
         public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetTargetPosition(
@@ -116,95 +138,75 @@ namespace behaviours
             };
         }
 
-        public static BehaviourStatus MoveToTargetEntityPosition(
+
+        public static BehaviourStatus MoveToTargetPositionFactory(
             BehaviourTreeBlackboardContext context
         )
         {
-            return BehaviourStatus.Failed;
-            // PositionComponent position = context.EntityManager.GetComponent<PositionComponent>(context.Entity);
-            // VelocityComponent velocity = context.EntityManager.GetComponent<VelocityComponent>(context.Entity);
-            // TargetEntityComponent target = context.EntityManager.GetComponent<TargetEntityComponent>(context.Entity);
-
-            // if (velocity == null)
-            // {
-            //     return BehaviourStatus.Failed;
-            // }
-
-            // if (position == null || target == null)
-            // {
-            //     velocity.Velocity = Godot.Vector2.Zero;
-            //     return BehaviourStatus.Failed;
-            // }
-
-            // var targetPosition = context.EntityManager.GetComponent<PositionComponent>(target.TargetEntity);
-
-
-            // return BehaviourStatus.Running; // Still moving towards the target
+            return MoveToTargetPositionFactory("Default")(context);
         }
 
-        public static BehaviourStatus MoveToTargetPosition(
-            BehaviourTreeBlackboardContext context
-        )
-        {
-            return MoveToTargetPosition("Default")(context);
-        }
-
-        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> MoveToTargetPosition(
+        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> MoveToTargetPositionFactory(
             string targetId
         )
         {
             return (context) =>
             {
-                var positionComponent = context.EntityManager.GetComponent<PositionComponent>(context.Entity);
-                var velocityComponent = context.EntityManager.GetComponent<VelocityComponent>(context.Entity);
-                var targetComponent = context.EntityManager.GetComponent<TargetPositionComponent>(context.Entity, targetId);
-
-                if (velocityComponent == null)
-                {
-                    GD.Print("No velocity component");
-                    return BehaviourStatus.Failed;
-                }
-
-                if (targetComponent == null)
-                {
-                    GD.Print($"No target component: {targetId}");
-                    velocityComponent.Velocity = Godot.Vector2.Zero;
-                    return BehaviourStatus.Failed;
-                }
-
-
-                if (positionComponent == null)
-                {
-                    GD.Print("No position component");
-                    velocityComponent.Velocity = Godot.Vector2.Zero;
-                    return BehaviourStatus.Failed;
-                }
-
-                var direction = positionComponent.Position.DirectionTo(targetComponent.Position).Normalized();
-                velocityComponent.Velocity = new Godot.Vector2(
-                    direction.X,
-                    direction.Y
-                );
-
-                if (positionComponent.Position.DistanceTo(targetComponent.Position) < 2)
-                {
-                    return BehaviourStatus.Succeeded; // Still moving towards the target
-                }
-
-                return BehaviourStatus.Running;
+                return MoveToTargetEntityPosition(context, targetId);
             };
         }
-        public static bool HasReachedTargetPosition(
+
+        public static BehaviourStatus MoveToTargetEntityPosition(
             BehaviourTreeBlackboardContext context,
-            int threshold = 20
+            string targetId
         )
         {
-            PositionComponent positionComponent = context.EntityManager.GetComponent<PositionComponent>(context.Entity);
-            TargetPositionComponent targetComponent = context.EntityManager.GetComponent<TargetPositionComponent>(context.Entity);
+            var targetEntityComponent = context.EntityManager.GetComponent<TargetEntityComponent>(context.Entity, targetId);
 
-            var distance = positionComponent.Position.DistanceTo(targetComponent.Position);
+            if (targetEntityComponent == null)
+            {
+                return BehaviourStatus.Failed;
+            }
 
-            return distance < threshold;
+            var targetPosition = context.EntityManager.GetComponent<PositionComponent>(targetEntityComponent.TargetEntity);
+            return MoveToTargetPosition(context, targetPosition.Position);
         }
+
+        public static BehaviourStatus MoveToTargetPosition(
+            BehaviourTreeBlackboardContext context,
+            Godot.Vector2 targetPosition
+        )
+        {
+
+            var positionComponent = context.EntityManager.GetComponent<PositionComponent>(context.Entity);
+            var velocityComponent = context.EntityManager.GetComponent<VelocityComponent>(context.Entity);
+
+            if (velocityComponent == null)
+            {
+                GD.Print("No velocity component");
+                return BehaviourStatus.Failed;
+            }
+
+            if (positionComponent == null)
+            {
+                GD.Print("No position component");
+                velocityComponent.Velocity = Godot.Vector2.Zero;
+                return BehaviourStatus.Failed;
+            }
+
+            var direction = positionComponent.Position.DirectionTo(targetPosition).Normalized();
+            velocityComponent.Velocity = new Godot.Vector2(
+                direction.X,
+                direction.Y
+            );
+
+            if (positionComponent.Position.DistanceTo(targetPosition) < 2)
+            {
+                return BehaviourStatus.Succeeded; // Still moving towards the target
+            }
+
+            return BehaviourStatus.Running;
+        }
+
     }
 }

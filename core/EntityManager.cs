@@ -32,6 +32,16 @@ namespace core
             }
         }
 
+        public Node CreateEntity(string name)
+        {
+            var entity = new Node();
+            entity.Name = name;
+            this.GetParent<Node>().CallDeferred("add_child", entity);
+            this.RegisterEntity(entity);
+
+            return entity;
+        }
+
 
         /**
          * Programatically add a child node as a component
@@ -139,8 +149,8 @@ namespace core
                         .GetChildren()
                         .Any(child => type.IsInstanceOfType(child))))
                 .ToList();
-
         }
+
     }
 
 }

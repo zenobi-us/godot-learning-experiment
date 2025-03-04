@@ -6,6 +6,7 @@ using System.Collections.Generic;
 namespace systems
 {
     // Example movement system
+    [GlobalClass]
     public partial class MovementSystem : core.BaseSystem
 
     {
@@ -28,9 +29,9 @@ namespace systems
             GD.Print("MovementSystem Ready");
         }
 
-        public override void _Process(double delta)
+        public override void _PhysicsProcess(double delta)
         {
-            base._Process(delta);
+            base._PhysicsProcess(delta);
 
             List<Node> entities = GetEntities();
 
