@@ -58,41 +58,20 @@ jobs:
           mise run build \
             --platform "${{ matrix.platform }}" \
             --clean
-
-      - name: Zip the dist/bin directory
-        id: zip-dir-linux
-        if: matrix.platform == 'linux'
-        uses: ./.github/actions/make-zip-file-linux
+      - name: Zip Release
+        id: zip-dir
+        uses: TheDoctor0/zip-release@78b32010bd8b7722906817a1f9e2a7190a182d0c #0.7.6
         with:
-          path-globs: |
-            ./dist/${{ matrix.platform }}/*
-          output-file: "${{ matrix.platform }}-game"
+          type: zip
+          filename: ${{ matrix.platform }}-game.zip
+          directory: ./dist
+          path: ./${{ matrix.platform }}
 
-      - name: Zip the dist/bin directory
-        id: zip-dir-windows
-        if: matrix.platform == 'windows'
-        uses: ./.github/actions/make-zip-file-windows
-        with:
-          path-globs: |
-            ./dist/${{ matrix.platform }}/*
-          output-file: "${{ matrix.platform }}-game"
-
-      - name: Upload prerelease (linux)
-        if: matrix.platform == 'linux'
-        uses: ./.github/actions/upload-release-linux
+      - name: Upload prerelease
+        uses: ./.github/actions/upload-release
         with:
           title: "PR #${{ github.event.number }} Prerelease"
           tagname: "pr-${{ github.event.number }}"
           prerelease: "true" #
-          filepath: "${{ steps.zip-dir-linux.outputs.zip-path }}"
-          notes: "Automated prerelease for PR #${{ github.event.number }} created on ${{ github.sha }}"
-
-      - name: Upload prerelease (windows)
-        if: matrix.platform == 'windows'
-        uses: ./.github/actions/upload-release-windows
-        with:
-          title: "PR #${{ github.event.number }} Prerelease"
-          tagname: "pr-${{ github.event.number }}"
-          prerelease: "true" #
-          filepath: "${{ steps.zip-dir-windows.outputs.zip-path }}"
+          filepath: "dist/${{matrix.platform}}-game.zip"
           notes: "Automated prerelease for PR #${{ github.event.number }} created on ${{ github.sha }}"
