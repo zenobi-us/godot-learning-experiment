@@ -1,3 +1,5 @@
+using Godot;
+
 namespace core
 {
 
@@ -5,6 +7,13 @@ namespace core
     public interface IComponent
     {
         // Empty interface used for typing
+        string Id { get; set; }
     }
 
+
+    public partial class BaseComponent : Node, IComponent
+    {
+        public string Id { get; set; }
+
+    }
 }

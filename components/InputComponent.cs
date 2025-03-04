@@ -3,10 +3,7 @@ using Godot;
 namespace components
 {
     [GlobalClass]
-    public partial class InputComponent : Node, core.IComponent
+    public partial class InputComponent : core.BaseComponent
     {
-        [Export]
-        public float Speed { get; set; }
-
     }
 }

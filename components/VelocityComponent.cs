@@ -3,7 +3,7 @@ using Godot;
 namespace components
 {
     [GlobalClass]
-    public partial class VelocityComponent : Node, core.IComponent
+    public partial class VelocityComponent : core.BaseComponent
     {
         /**
         * The acceleration applied to the moveable object when moving

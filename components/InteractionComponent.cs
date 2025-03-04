@@ -5,7 +5,7 @@ namespace components
 {
 
     [GlobalClass]
-    public partial class InteractionComponent : Node
+    public partial class InteractionComponent : core.BaseComponent
     {
         [Export]
         public NodePath EntryPointState { get; set; } // Path to the initial state node

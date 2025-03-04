@@ -30,7 +30,6 @@ namespace entities
             _entity = GetNode<Node>(EntityPath);
             _btComponent = _entityManager.GetComponent<BehaviourTreeComponent>(_entity);
 
-            HideRoot = true;
             GD.Print("Dislaying BehaviourTree", _btComponent.Behaviour);
 
             RenderBehaviourTree(this.GetRoot(), _btComponent.Behaviour);
@@ -72,8 +71,6 @@ namespace entities
         {
             var item = CreateItem(parent);
             var meta = new TreeItemMeta(obj);
-
-            GD.Print($"Created Tree Item for ${obj}:${obj.GetHashCode()}");
 
             item.SetMetadata(0, meta);
             item.SetEditable(0, false);

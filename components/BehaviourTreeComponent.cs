@@ -4,8 +4,10 @@ using BehaviourTree;
 namespace components
 {
     [GlobalClass]
-    public partial class BehaviourTreeComponent : Node, core.IComponent
+    public partial class BehaviourTreeComponent : core.BaseComponent
     {
+
+
         [Export]
         public core.BehaviourTreeResource BehaviourResource { get; set; }
 

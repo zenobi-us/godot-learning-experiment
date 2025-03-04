@@ -4,7 +4,7 @@ using Godot;
 namespace components
 {
     [GlobalClass]
-    public partial class RenderableComponent : Node
+    public partial class RenderableComponent : core.BaseComponent
     {
         [Export]
         public NodePath RenderNodePath { get; set; }

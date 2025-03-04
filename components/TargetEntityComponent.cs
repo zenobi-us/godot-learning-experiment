@@ -12,7 +12,7 @@ namespace components
      *
      */
     [GlobalClass]
-    public partial class TargetEntityComponent : Node, IComponent
+    public partial class TargetEntityComponent : core.BaseComponent
     {
 
         [Export]

@@ -1,6 +1,5 @@
 // InputSystem.cs
 using Godot;
-using System;
 using System.Collections.Generic;
 
 namespace systems
@@ -9,18 +8,12 @@ namespace systems
     public partial class InputSystem : core.BaseSystem
     {
 
-        public InputSystem()
+        public InputSystem() : base()
         {
 
             requiredComponents.Add(typeof(components.InputComponent));
             requiredComponents.Add(typeof(components.PositionComponent)); // we don't modify this, but controlling an entity without position doesn't make sense.
             requiredComponents.Add(typeof(components.VelocityComponent));
-        }
-
-        public override void _Ready()
-        {
-            base._Ready();
-            GD.Print("InputSystem Ready");
         }
 
         public override void _Process(double delta)

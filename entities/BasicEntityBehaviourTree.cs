@@ -11,7 +11,7 @@ namespace entities
         public override IBehaviour<behaviours.BehaviourTreeBlackboardContext> GetTree()
         {
             return FluentBuilder.Create<behaviours.BehaviourTreeBlackboardContext>()
-                .PrioritySelector("Root")
+                .PrioritySequence("Root")
                     .Subtree(behaviours.BehaviourTrees.FollowsMouseBehaviour())
                     .End()
                     .Build();

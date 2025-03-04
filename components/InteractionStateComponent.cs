@@ -4,7 +4,7 @@ namespace components
 {
 
     [GlobalClass]
-    public partial class InteractionStateComponent : Node
+    public partial class InteractionStateComponent : core.BaseComponent
     {
         [Export]
         public NodePath[] Transitions { get; set; } = new NodePath[0]; // Paths to possible next states

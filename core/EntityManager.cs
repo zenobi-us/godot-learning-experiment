@@ -2,6 +2,7 @@ using System;
 // EntityManager.cs (Updated)
 using Godot;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace core
 {
@@ -31,10 +32,11 @@ namespace core
             }
         }
 
+
         /**
          * Programatically add a child node as a component
          */
-        public T AddComponent<T>(Node node, T component) where T : Node
+        public T AddComponent<T>(Node entity, T component) where T : core.BaseComponent
         {
             if (component == null)
             {
@@ -42,66 +44,102 @@ namespace core
                 return null; // Or throw an exception: throw new System.ArgumentNullException(nameof(node), "Node cannot be null.");
             }
 
-            if (GetComponent<T>(node) != null)
+            // An entity is only allowed one un-identifiable component.
+            if (component.Id == null && HasComponent<T>(entity))
             {
-                GD.PushWarning($"Component of type {typeof(T).Name} already exists on node {node.Name}.");
-                return GetComponent<T>(node); // Or return null, or throw an exception depending on desired behavior
+                GD.Print($"Component {typeof(T).Name} already exists on {entity}");
+                return GetComponent<T>(entity);
+            }
+            // All component ids on an entity must be unique.
+            if (HasComponent<T>(entity, component.Id))
+            {
+                GD.Print($"Identified component {component.Id} already exists on entity {entity}");
+                return GetComponent<T>(entity, component.Id);
             }
 
-            node.AddChild(component);
-            GD.Print($"Component of type {typeof(T).Name} added to node {node.Name}."); // Add log for debugging
+            entity.AddChild(component);
+            GD.Print($"Component of type {typeof(T).Name} added to node {entity.Name}."); // Add log for debugging
             return component;
         }
 
-        // Get a component node of type T from an entity
-        public T GetComponent<T>(Node entity) where T : Node
+        public void RemoveComponent<T>(Node entity) where T : core.BaseComponent
         {
-            foreach (Node child in entity.GetChildren())
+            if (entity == null)
             {
-                if (child is T component)
-                {
-                    return component;
-                }
+                return;
             }
-            return null;
+
+            var component = GetComponent<T>(entity);
+
+            if (component == null)
+            {
+                return;
+            }
+
+            entity.RemoveChild(component);
+        }
+
+        public void RemoveComponent<T>(Node entity, string id) where T : core.BaseComponent
+        {
+            if (entity == null)
+            {
+                return;
+            }
+
+            var component = GetComponent<T>(entity, id);
+
+            if (component == null)
+            {
+                return;
+            }
+
+            entity.RemoveChild(component);
+        }
+
+        // Get a component node of type T from an entity
+        public T GetComponent<T>(Node entity) where T : core.BaseComponent
+        {
+
+            return GetComponents<T>(entity).FirstOrDefault();
+        }
+        public T GetComponent<T>(Node entity, string id) where T : core.BaseComponent
+        {
+
+            return GetComponents<T>(entity, id).FirstOrDefault();
+        }
+
+        // Returns multiple components on an entity that match
+        public IEnumerable<T> GetComponents<T>(Node entity) where T : core.BaseComponent
+        {
+            return entity.GetChildren().OfType<T>();
+        }
+        // Returns multiple components on an entity that match
+        public IEnumerable<T> GetComponents<T>(Node entity, string id) where T : core.BaseComponent
+        {
+            return GetComponents<T>(entity).Where(x => x.Id == id);
         }
 
         // Check if an entity has a component of type T
-        public bool HasComponent<T>(Node entity) where T : Node
+        public bool HasComponent<T>(Node entity) where T : core.BaseComponent
         {
             return GetComponent<T>(entity) != null;
+        }
+        // Check if an entity has a idenfiable component of type T
+        public bool HasComponent<T>(Node entity, string id) where T : core.BaseComponent
+        {
+            return GetComponents<T>(entity, id).Count() > 0;
         }
 
         // Get all entities with specific component types
         public List<Node> GetEntitiesWithComponents(params System.Type[] componentTypes)
         {
-            List<Node> matchingEntities = new();
-            foreach (Node entity in _entities)
-            {
-                bool hasAll = true;
-                foreach (var type in componentTypes)
-                {
-                    bool hasComponent = false;
-                    foreach (Node child in entity.GetChildren())
-                    {
-                        if (type.IsInstanceOfType(child))
-                        {
-                            hasComponent = true;
-                            break;
-                        }
-                    }
-                    if (!hasComponent)
-                    {
-                        hasAll = false;
-                        break;
-                    }
-                }
-                if (hasAll)
-                {
-                    matchingEntities.Add(entity);
-                }
-            }
-            return matchingEntities;
+            return _entities
+                .Where(entity => componentTypes
+                    .All(type => entity
+                        .GetChildren()
+                        .Any(child => type.IsInstanceOfType(child))))
+                .ToList();
+
         }
     }
 
