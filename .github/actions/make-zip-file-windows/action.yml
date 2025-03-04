@@ -1,0 +1,66 @@
+name: Make Zip File
+description: Zips up files matching specified path globs
+
+inputs:
+  path-globs:
+    description: A newline-separated list of path globs to include in the zip
+    required: true
+  output-file:
+    description: The name of the output zip file (without .zip extension)
+    required: false
+    default: "archive"
+
+outputs:
+  zip-path:
+    description: The path to the created zip file
+    value: ${{ steps.zip.outputs.zip-path }}
+
+runs:
+  using: composite
+  steps:
+    - id: validate
+      shell: pwsh
+      run: |
+        # Convert newline-separated globs to an array
+        $globs = "${{ inputs.path-globs }}" -split "`n" | Where-Object { $_ }
+        
+        if ($globs.Length -eq 0) {
+          Write-Error "No path globs provided"
+          exit 1
+        }
+
+        # Check if at least one file matches the globs
+        $found = $false
+        foreach ($glob in $globs) {
+          if (Get-Item $glob -ErrorAction SilentlyContinue) {
+            $found = $true
+            break
+          }
+        }
+
+        if (-not $found) {
+          Write-Error "No files match the provided globs: ${{ inputs.path-globs }}"
+          exit 1
+        }
+
+        # Set output
+        "valid=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+    - id: zip
+      shell: pwsh
+      run: |
+        # Get the globs array
+        $globs = "${{ inputs.path-globs }}" -split "`n" | Where-Object { $_ }
+        $zipFile = "${{ inputs.output-file }}.zip"
+
+        # Resolve all matching files from globs
+        $filesToZip = @()
+        foreach ($glob in $globs) {
+          $filesToZip += Get-Item $glob -ErrorAction SilentlyContinue
+        }
+
+        # Create the zip file
+        $filesToZip | Compress-Archive -DestinationPath $zipFile -Force
+
+        # Set output
+        "zip-path=$zipFile" | Out-File -FilePath $env:GITHUB_OUTPUT -Append

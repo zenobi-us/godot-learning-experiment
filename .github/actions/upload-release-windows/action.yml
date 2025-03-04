@@ -1,0 +1,72 @@
+name: Upload Prerelease
+description: Creates or updates a release with a file upload, optionally as a prerelease
+
+inputs:
+  title:
+    description: The title of the release
+    required: true
+  tagname:
+    description: The tag name for the release
+    required: true
+  filepath:
+    description: The path to the file to upload
+    required: true
+  prerelease:
+    description: Whether the release should be marked as a prerelease (true/false)
+    required: false
+    default: "true"
+  notes:
+    description: The release notes
+    required: false
+    default: "Automated release"
+
+runs:
+  using: composite
+  steps:
+    - id: check-release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      shell: pwsh
+      run: |
+        # Check if release exists, suppressing output
+        $exists = $false
+        try {
+          gh release view "${{ inputs.tagname }}" 2>&1 | Out-Null
+          $exists = $true
+        } catch {
+          # Release doesn't exist, which is fine
+        }
+        
+        # Set output
+        "exists=$exists" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        if (-not $exists) {
+          Write-Output "empty"
+        }
+
+    - env:
+        GITHUB_TOKEN: ${{ github.token }}
+      shell: pwsh
+      if: steps.check-release.outputs.exists == 'false'
+      run: |
+        # Conditionally set prerelease flag
+        $prereleaseFlag = ""
+        if ("${{ inputs.prerelease }}" -eq "true") {
+          $prereleaseFlag = "--prerelease"
+        }
+
+        # Create the release with custom notes
+        $command = "gh release create `"${{ inputs.tagname }}`" " + `
+                  "--title `"${{ inputs.title }}`" " + `
+                  "--notes `"${{ inputs.notes }}`" " + `
+                  "$prereleaseFlag " + `
+                  "--target `"${{ github.sha }}`""
+        
+        # Execute the command
+        Invoke-Expression $command
+
+    - env:
+        GITHUB_TOKEN: ${{ github.token }}
+      shell: pwsh
+      run: |
+        # Upload the file, overwriting if it exists
+        gh release upload "${{ inputs.tagname }}" "${{ inputs.filepath }}" --clobber

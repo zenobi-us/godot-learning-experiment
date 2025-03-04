@@ -18,8 +18,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Validate input paths
-      id: validate
+    - id: validate
       shell: bash
       run: |
         # Convert newline-separated globs to an array
@@ -42,8 +41,7 @@ runs:
         fi
         echo "valid=true" >> $GITHUB_OUTPUT
 
-    - name: Zip the files
-      id: zip
+    - id: zip
       shell: bash
       run: |
         # Convert newline-separated globs to space-separated for zip command

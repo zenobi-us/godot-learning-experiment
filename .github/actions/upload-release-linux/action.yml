@@ -23,8 +23,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Check if release exists
-      id: check-release
+    - id: check-release
       env:
         GITHUB_TOKEN: ${{ github.token }}
       shell: bash
@@ -36,8 +35,7 @@ runs:
           echo "empty"
         fi
 
-    - name: Create release if it doesn’t exist
-      env:
+    - env:
         GITHUB_TOKEN: ${{ github.token }}
       shell: bash
       if: steps.check-release.outputs.exists == 'false'
@@ -54,8 +52,7 @@ runs:
           $PRERELEASE_FLAG \
           --target "${{ github.sha }}"
 
-    - name: Upload file to release
-      env:
+    - env:
         GITHUB_TOKEN: ${{ github.token }}
       shell: bash
       run: |
