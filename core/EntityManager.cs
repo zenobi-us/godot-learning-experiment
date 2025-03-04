@@ -35,6 +35,7 @@ namespace core
         public Node CreateEntity(string name)
         {
             var entity = new Node();
+            entity.AddToGroup("entities", true);
             entity.Name = name;
             this.GetParent<Node>().CallDeferred("add_child", entity);
             this.RegisterEntity(entity);
@@ -61,7 +62,7 @@ namespace core
                 return GetComponent<T>(entity);
             }
             // All component ids on an entity must be unique.
-            if (HasComponent<T>(entity, component.Id))
+            if (HasComponentWithId<T>(entity, component.Id))
             {
                 GD.Print($"Identified component {component.Id} already exists on entity {entity}");
                 return GetComponent<T>(entity, component.Id);
@@ -135,9 +136,9 @@ namespace core
             return GetComponent<T>(entity) != null;
         }
         // Check if an entity has a idenfiable component of type T
-        public bool HasComponent<T>(Node entity, string id) where T : core.BaseComponent
+        public bool HasComponentWithId<T>(Node entity, string id) where T : core.BaseComponent
         {
-            return GetComponents<T>(entity, id).Count() > 0;
+            return GetComponents<T>(entity).Any(component => component.Id == id);
         }
 
         // Get all entities with specific component types

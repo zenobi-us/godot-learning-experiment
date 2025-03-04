@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using BehaviourTree;
 using components;
-using core;
 using Godot;
 
 namespace behaviours
@@ -16,9 +15,12 @@ namespace behaviours
             var targetEntity = context.EntityManager.GetEntitiesWithComponents(typeof(NameableComponent))
                 .Where(entity =>
                 {
-                    return context.EntityManager.HasComponent<NameableComponent>(entity, targetEntityId);
+                    var entityComponents = context.EntityManager.GetComponents<NameableComponent>(entity);
+                    var isNamed = entityComponents.Any(component => component.Id == targetEntityId);
+                    return isNamed;
                 })
                 .FirstOrDefault();
+
             var targetEntityComponent = context.EntityManager.GetComponent<TargetEntityComponent>(context.Entity, targetEntityId);
 
             // target doesn't exist
@@ -47,7 +49,8 @@ namespace behaviours
         {
             return (context) =>
                 {
-                    return SetEntityAsTarget(context, targetEntityId);
+                    var result = SetEntityAsTarget(context, targetEntityId);
+                    return result;
                 };
         }
 

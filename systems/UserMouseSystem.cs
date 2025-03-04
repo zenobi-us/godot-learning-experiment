@@ -25,6 +25,7 @@ namespace systems
             // we need to create a UserMouse entity and add a PositionComponent
             Node entity = this._entityManager.CreateEntity(MouseEntityName);
 
+            this._entityManager.AddComponent(entity, new NameableComponent(MouseEntityName));
             this._entityManager.AddComponent(entity, new UserMouseComponent());
 
             userMouse = entity;
