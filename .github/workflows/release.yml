@@ -14,10 +14,10 @@ concurrency:
 permissions:
   actions: read
   contents: write
-  issues: write
   deployments: write
-  pull-requests: write
   id-token: write
+  issues: write
+  pull-requests: write
 
 jobs:
   Process:
