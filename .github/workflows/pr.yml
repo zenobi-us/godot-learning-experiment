@@ -1,0 +1,77 @@
+name: Pr
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+  pull-requests: write
+  statuses: write # read/write to repo custom statuses
+
+jobs:
+  Check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 #v3
+        with:
+          fetch-depth: 0
+      # TODO: add tests/lint/dangerjs review
+
+  Preview:
+    needs: Check
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - on: ubuntu-latest
+            platform: linux
+          - on: windows-latest
+            platform: windows
+          # - on: macos-latest
+          #   platform: macos
+
+    runs-on: "${{ matrix.on }}"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 #v3
+        with:
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@5bb8f8c1911837cf42064e6490e7634fc842ee7e # v2
+        env:
+          GITHUB_API_TOKEN: ${{ secrets.ASDF_GITHUB_API_TOKEN }}
+
+      - name: Setup Godot Project
+        uses: ./.github/actions/setup-godot-project
+
+      - name: Build
+        run: |
+          mise run build \
+            --platform "${{ matrix.platform }}" \
+            --clean
+      - name: Zip Release
+        id: zip-dir
+        uses: TheDoctor0/zip-release@78b32010bd8b7722906817a1f9e2a7190a182d0c #0.7.6
+        with:
+          type: zip
+          filename: ${{ matrix.platform }}-game.zip
+          directory: ./dist
+          path: ./${{ matrix.platform }}
+
+      - name: Upload prerelease
+        uses: ./.github/actions/upload-release
+        with:
+          title: "PR #${{ github.event.number }} Prerelease"
+          tagname: "pr-${{ github.event.number }}"
+          prerelease: "true" #
+          filepath: "dist/${{matrix.platform}}-game.zip"
+          notes: "Automated prerelease for PR #${{ github.event.number }} created on ${{ github.sha }}"

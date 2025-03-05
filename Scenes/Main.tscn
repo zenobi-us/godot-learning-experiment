@@ -1,0 +1,185 @@
+[gd_scene load_steps=31 format=3 uid="uid://bhv3wy6cq3dsy"]
+
+[ext_resource type="Script" path="res://Scenes/Main.cs" id="1_vht1c"]
+[ext_resource type="Script" path="res://systems/AnimationSystem.cs" id="2_0j0r7"]
+[ext_resource type="Script" path="res://core/EventManager.cs" id="3_hdkvm"]
+[ext_resource type="Script" path="res://core/EntityManager.cs" id="4_4fmml"]
+[ext_resource type="Script" path="res://systems/MovementSystem.cs" id="5_g2vkr"]
+[ext_resource type="Script" path="res://systems/InputSystem.cs" id="6_0o1sw"]
+[ext_resource type="Script" path="res://systems/BehaviourTreeSystem.cs" id="7_5viwm"]
+[ext_resource type="Script" path="res://components/InputComponent.cs" id="7_jj0yb"]
+[ext_resource type="Script" path="res://systems/UserMouseSystem.cs" id="7_mfwli"]
+[ext_resource type="Script" path="res://components/VelocityComponent.cs" id="8_c2y1x"]
+[ext_resource type="Script" path="res://components/PositionComponent.cs" id="9_bnow4"]
+[ext_resource type="Texture2D" uid="uid://dcl88m07ejqjr" path="res://assets/idle full sprite sheet.png" id="10_r5uh5"]
+[ext_resource type="Script" path="res://components/BehaviourTreeComponent.cs" id="11_wxe74"]
+[ext_resource type="Script" path="res://entities/BasicEntityBehaviourTree.cs" id="12_8f7ow"]
+[ext_resource type="Script" path="res://entities/BehaviourTreeUI.cs" id="14_xd1hv"]
+
+[sub_resource type="Resource" id="Resource_ut11e"]
+script = ExtResource("12_8f7ow")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xii1v"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(10, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1uqhj"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(74, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nubv1"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(138, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5hl6d"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(202, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_537fj"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(266, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vowba"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(330, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5fi0n"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(394, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bakke"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(458, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0r6os"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(522, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5ptmm"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(586, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0s80q"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(650, 10, 42, 42)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spcg4"]
+atlas = ExtResource("10_r5uh5")
+region = Rect2(714, 10, 42, 42)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_vkbiv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xii1v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1uqhj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nubv1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5hl6d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_537fj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vowba")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5fi0n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bakke")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0r6os")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5ptmm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0s80q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_spcg4")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_c6d8j"]
+radius = 6.0
+height = 12.0
+
+[node name="Main" type="Node"]
+script = ExtResource("1_vht1c")
+
+[node name="EventManager" type="Node" parent="."]
+script = ExtResource("3_hdkvm")
+
+[node name="EntityManager" type="Node" parent="."]
+script = ExtResource("4_4fmml")
+
+[node name="AnimationSystem" type="Node" parent="."]
+script = ExtResource("2_0j0r7")
+EntityManagerPath = NodePath("../EntityManager")
+
+[node name="MovementSystem" type="Node" parent="."]
+script = ExtResource("5_g2vkr")
+EventManagerPath = NodePath("../EventManager")
+EntityManagerPath = NodePath("../EntityManager")
+
+[node name="InputSystem" type="Node" parent="."]
+script = ExtResource("6_0o1sw")
+EntityManagerPath = NodePath("../EntityManager")
+
+[node name="UserMouseSystem" type="Node" parent="."]
+script = ExtResource("7_mfwli")
+EntityManagerPath = NodePath("../EntityManager")
+
+[node name="BehaviourTreeSystem" type="Node" parent="."]
+script = ExtResource("7_5viwm")
+EntityManagerPath = NodePath("../EntityManager")
+
+[node name="Player" type="CharacterBody2D" parent="." groups=["entities", "player"]]
+position = Vector2(391, 158)
+metadata/_edit_group_ = true
+
+[node name="VelocityComponent" type="Node" parent="Player"]
+script = ExtResource("8_c2y1x")
+
+[node name="PositionComponent" type="Node" parent="Player"]
+script = ExtResource("9_bnow4")
+
+[node name="BehaviourTreeComponent" type="Node" parent="Player"]
+script = ExtResource("11_wxe74")
+BehaviourResource = SubResource("Resource_ut11e")
+
+[node name="InputComponent" type="Node" parent="Player"]
+script = ExtResource("7_jj0yb")
+
+[node name="PlayerAnimation" type="AnimatedSprite2D" parent="Player"]
+sprite_frames = SubResource("SpriteFrames_vkbiv")
+frame_progress = 0.507662
+
+[node name="PlayerCollision2D" type="CollisionShape2D" parent="Player"]
+position = Vector2(0, 9)
+shape = SubResource("CapsuleShape2D_c6d8j")
+
+[node name="Node" type="Node" parent="."]
+
+[node name="Tree" type="Tree" parent="Node"]
+offset_left = 24.0
+offset_top = 20.0
+offset_right = 292.0
+offset_bottom = 372.0
+column_titles_visible = true
+allow_search = false
+enable_recursive_folding = false
+script = ExtResource("14_xd1hv")
+EntityPath = NodePath("../../Player")
+EntityManagerPath = NodePath("../../EntityManager")
