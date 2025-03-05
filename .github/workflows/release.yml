@@ -68,6 +68,9 @@ jobs:
         env:
           GITHUB_API_TOKEN: ${{ secrets.ASDF_GITHUB_API_TOKEN }}
 
+      - name: Export Mise Env
+        run: mise env --dotenv >> "$GITHUB_ENV"
+
       - name: Setup Godot Project
         uses: ./.github/actions/setup-godot-project
 
