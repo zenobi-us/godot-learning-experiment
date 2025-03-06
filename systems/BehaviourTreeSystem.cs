@@ -19,9 +19,9 @@ namespace systems
             GD.Print("Behavior Tree System ready");
         }
 
-        public override void _PhysicsProcess(double delta)
+        public override void _Process(double delta)
         {
-            base._PhysicsProcess(delta);
+            base._Process(delta);
 
             List<Node> entities = GetEntities();
 

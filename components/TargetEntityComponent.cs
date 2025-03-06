@@ -14,9 +14,19 @@ namespace components
     [GlobalClass]
     public partial class TargetEntityComponent : core.BaseComponent
     {
-
+        /**
+         * The Editor UI NodePath to our target entity
+         */
         [Export]
         public NodePath TargetEntityNodePath { get; set; }
+
+
+        /**
+         * The remaining distance in which we consider our 
+         * target to have been reached.
+         */
+        [Export]
+        public int Threshold { get; set; } = 40;
 
         public Node TargetEntity { get; set; }
 
@@ -32,14 +42,16 @@ namespace components
             TargetEntity = GetNode(TargetEntityNodePath);
         }
 
-        public TargetEntityComponent(Node entity)
+        public TargetEntityComponent(Node entity, int threshold = 40)
         {
             TargetEntity = entity;
+            Threshold = threshold;
         }
-        public TargetEntityComponent(Node entity, string entityId)
+        public TargetEntityComponent(Node entity, string entityId, int threshold = 40)
         {
             TargetEntity = entity;
             Id = entityId;
+            Threshold = threshold;
         }
         public TargetEntityComponent()
         {

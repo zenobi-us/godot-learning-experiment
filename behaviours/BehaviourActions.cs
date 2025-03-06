@@ -10,7 +10,7 @@ namespace behaviours
     public static class BehaviourActions
     {
 
-        public static BehaviourStatus SetEntityAsTarget(BehaviourTreeBlackboardContext context, string targetEntityId)
+        public static BehaviourStatus SetEntityAsTarget(BehaviourTreeBlackboardContext context, string targetEntityId, int threshold = 40)
         {
             var targetEntity = context.EntityManager.GetEntitiesWithComponents(typeof(NameableComponent))
                 .Where(entity =>
@@ -26,37 +26,35 @@ namespace behaviours
             // target doesn't exist
             if (targetEntity == null)
             {
-                GD.Print($"No entity with NameableComponent.Id = {targetEntityId}");
                 return BehaviourStatus.Failed;
             }
 
 
             if (targetEntityComponent == null)
             {
-                context.EntityManager.AddComponent(context.Entity, new TargetEntityComponent(targetEntity, targetEntityId));
-                GD.Print($"Created TargetEntityComponent for = {targetEntityId}");
+                context.EntityManager.AddComponent(context.Entity, new TargetEntityComponent(targetEntity, targetEntityId, threshold));
                 return BehaviourStatus.Succeeded;
             }
 
             targetEntityComponent.Id = targetEntityId;
             targetEntityComponent.TargetEntity = targetEntity;
 
-            GD.Print($"Updated TargetEntityComponent for = {targetEntityId}");
             return BehaviourStatus.Succeeded;
         }
 
-        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetEntityAsTargetFactory(string targetEntityId)
+        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetEntityAsTargetFactory(string targetEntityId, int threshold = 40)
         {
             return (context) =>
                 {
-                    var result = SetEntityAsTarget(context, targetEntityId);
+                    var result = SetEntityAsTarget(context, targetEntityId, threshold);
                     return result;
                 };
         }
 
         public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetTargetPosition(
             string targetPositionId,
-            Func<BehaviourTreeBlackboardContext, Godot.Vector2> getPositionFunc
+            Func<BehaviourTreeBlackboardContext, Godot.Vector2> getPositionFunc,
+            int threshold = 40
         )
         {
             return (ctx) =>
@@ -70,18 +68,14 @@ namespace behaviours
                     if (target != null)
                     {
                         target.Position = position;
-                        GD.Print($"Updated position for {targetPositionId} to {position}");
                         return BehaviourStatus.Succeeded;
                     }
 
-                    ctx.EntityManager.AddComponent(ctx.Entity, new TargetPositionComponent(targetPositionId, position));
-                    GD.Print($"Created target position {targetPositionId} at {position}");
+                    ctx.EntityManager.AddComponent(ctx.Entity, new TargetPositionComponent(targetPositionId, position, threshold));
                     return BehaviourStatus.Succeeded;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    GD.PrintErr($"something went wrong with {targetPositionId}");
-                    GD.PrintErr(ex.ToString());
                     return BehaviourStatus.Failed;
                 }
             };
@@ -103,7 +97,7 @@ namespace behaviours
             };
         }
 
-        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetRandomNearbyTargetPosition(string targetId, int radius)
+        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetRandomNearbyTargetPosition(string targetId, int radius, int threshold = 40)
         {
             return (context) =>
             {
@@ -111,13 +105,19 @@ namespace behaviours
 
                 if (positionComponent == null)
                 {
-                    GD.Print("SetRandomNearbyTargetPosition: no position");
                     return BehaviourStatus.Failed;
+                }
+
+                var targetPositionComponent = context.EntityManager.GetComponent<TargetPositionComponent>(context.Entity, targetId);
+
+                if (targetPositionComponent != null && positionComponent.Position.DistanceTo(targetPositionComponent.Position) < targetPositionComponent.Threshold)
+                {
+                    context.EntityManager.RemoveComponent<TargetPositionComponent>(context.Entity, targetId);
+                    return BehaviourStatus.Succeeded;
                 }
 
                 try
                 {
-                    context.EntityManager.RemoveComponent<TargetPositionComponent>(context.Entity, targetId);
                     var max = Math.PI * 2;
                     var min = 0;
                     var randomDirection = new Random().NextDouble() * (max - min) + min;
@@ -127,15 +127,18 @@ namespace behaviours
                         positionComponent.Position.Y + randomDistance * (float)Math.Sin(randomDirection)
 
                     );
-                    var patrolTarget = new TargetPositionComponent(targetId, targetPosition);
-                    context.EntityManager.AddComponent(context.Entity, patrolTarget);
-                    GD.Print($"SetRandomNearbyTargetPosition: Set random target position to {targetPosition}");
+                    if (targetPositionComponent == null)
+                    {
+                        context.EntityManager.AddComponent(context.Entity, new TargetPositionComponent(targetId, targetPosition, threshold));
+                        return BehaviourStatus.Succeeded;
+                    }
+
+                    targetPositionComponent.Position = targetPosition;
 
                     return BehaviourStatus.Succeeded;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    GD.Print("SetRandomNearbyTargetPosition: Failed to calculate a random target position", ex);
                     return BehaviourStatus.Failed;
                 }
             };
@@ -155,7 +158,15 @@ namespace behaviours
         {
             return (context) =>
             {
-                return MoveToTargetEntityPosition(context, targetId);
+                var targetPositionComponent = context.EntityManager.GetComponent<TargetPositionComponent>(context.Entity, targetId);
+
+                if (targetPositionComponent == null)
+                {
+                    return BehaviourStatus.Failed;
+                }
+
+
+                return MoveToTargetPosition(context, targetPositionComponent.Position);
             };
         }
 
@@ -186,13 +197,11 @@ namespace behaviours
 
             if (velocityComponent == null)
             {
-                GD.Print("No velocity component");
                 return BehaviourStatus.Failed;
             }
 
             if (positionComponent == null)
             {
-                GD.Print("No position component");
                 velocityComponent.Velocity = Godot.Vector2.Zero;
                 return BehaviourStatus.Failed;
             }
@@ -203,12 +212,13 @@ namespace behaviours
                 direction.Y
             );
 
-            if (positionComponent.Position.DistanceTo(targetPosition) < 2)
+            if (positionComponent.Position.DistanceTo(targetPosition) > 2)
             {
-                return BehaviourStatus.Succeeded; // Still moving towards the target
+                return BehaviourStatus.Failed;
             }
 
-            return BehaviourStatus.Running;
+            return BehaviourStatus.Succeeded; // Still moving towards the target
+
         }
 
     }

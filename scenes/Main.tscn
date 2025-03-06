@@ -1,6 +1,6 @@
 [gd_scene load_steps=31 format=3 uid="uid://bhv3wy6cq3dsy"]
 
-[ext_resource type="Script" path="res://Scenes/Main.cs" id="1_vht1c"]
+[ext_resource type="Script" path="res://scenes/Main.cs" id="1_vht1c"]
 [ext_resource type="Script" path="res://systems/AnimationSystem.cs" id="2_0j0r7"]
 [ext_resource type="Script" path="res://core/EventManager.cs" id="3_hdkvm"]
 [ext_resource type="Script" path="res://core/EntityManager.cs" id="4_4fmml"]
@@ -176,7 +176,7 @@ shape = SubResource("CapsuleShape2D_c6d8j")
 offset_left = 24.0
 offset_top = 20.0
 offset_right = 292.0
-offset_bottom = 372.0
+offset_bottom = 534.0
 column_titles_visible = true
 allow_search = false
 enable_recursive_folding = false

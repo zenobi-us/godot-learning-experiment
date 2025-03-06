@@ -1,26 +1,59 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-
-        {
-            "name": "Attach",
-            "type": "godot-mono",
-            "request": "attach",
-            "address": "localhost",
-            "port": 23685
-        },
-        {
-            "name": "Launch",
-            "type": "godot-mono",
-            "request": "launch",
-            "mode": "executable",
-            "preLaunchTask": "build",
-            "executable": "godot",
-            "executableArguments": [
-                "--path",
-                ""
-            ]
-        }
-
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "godot",
+      "args": [
+        "--path",
+        "${workspaceRoot}"
+      ],
+      "stopAtEntry": false,
+    },
+    {
+      "name": "Launch (Select Scene)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "godot",
+      "args": [
+        "--path",
+        "${workspaceRoot}",
+        "${command:godot.csharp.getLaunchScene}"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "console": "internalConsole",
+    },
+    {
+      "name": "Auto Attach",
+      "type": "godot-mono",
+      "request": "attach",
+      "address": "localhost",
+      "port": 6007
+    },
+    {
+      "name": "Attach",
+      "type": "coreclr",
+      "request": "attach"
+    },
+    {
+      "name": "Launch in Editor",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "godot",
+      "args": [
+        "--path",
+        "${workspaceRoot}",
+        "--editor"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+    }
+  ]
 }

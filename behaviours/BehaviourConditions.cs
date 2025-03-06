@@ -1,5 +1,4 @@
 using System;
-using System.Numerics;
 using components;
 using Godot;
 
@@ -14,10 +13,9 @@ namespace behaviours
             return (ctx) =>
             {
                 var distance = GetTargetEntityDistance(ctx, targetEntityId);
-                var isInReach = distance < distanceThreshold;
+                var result = distance < distanceThreshold;
 
-                GD.Print($"IsTargetPositionInReach: {isInReach}");
-                return isInReach;
+                return result;
             };
         }
 
@@ -26,10 +24,9 @@ namespace behaviours
             return (ctx) =>
             {
                 var distance = GetTargetEntityDistance(ctx, targetEntityId);
-                var isInReach = distance < distanceThreshold;
-
-                GD.Print($"IsTargetPositionInReach: {isInReach}");
-                return isInReach;
+                var result = distance > distanceThreshold;
+                GD.Print($"IsTargetEntityOutOfReach: {result}");
+                return result;
             };
         }
 
@@ -39,9 +36,8 @@ namespace behaviours
             return (ctx) =>
             {
                 var distance = GetTargetPositionDistance(ctx, positionId);
-                var isInReach = distance < distanceThreshold;
-                GD.Print($"IsTargetPositionInReach: {isInReach}");
-                return isInReach;
+                var result = distance < distanceThreshold;
+                return result;
             };
         }
 
@@ -50,9 +46,8 @@ namespace behaviours
             return (ctx) =>
             {
                 var distance = GetTargetPositionDistance(ctx, positionId);
-                var isOutOfReach = distance > distanceThreshold;
-                GD.Print($"IsTargetPositionOutOfReach: {isOutOfReach}");
-                return isOutOfReach;
+                var result = distance > distanceThreshold;
+                return result;
             };
         }
 
@@ -61,18 +56,13 @@ namespace behaviours
             string targetEntityId
         )
         {
-            TargetEntityComponent target = context.EntityManager.GetComponent<TargetEntityComponent>(context.Entity, targetEntityId);
-            if (target == null)
+            var target = context.EntityManager.GetComponent<TargetEntityComponent>(context.Entity, targetEntityId);
+            if (target == null || target.TargetEntity == null)
             {
                 return float.MaxValue;
             }
 
-            if (target.TargetEntity == null)
-            {
-                return float.MaxValue;
-            }
-
-            TargetPositionComponent targetPositionComponent = context.EntityManager.GetComponent<TargetPositionComponent>(target.TargetEntity);
+            var targetPositionComponent = context.EntityManager.GetComponent<PositionComponent>(target.TargetEntity);
             if (targetPositionComponent == null)
             {
                 return float.MaxValue;
@@ -93,7 +83,6 @@ namespace behaviours
             PositionComponent position = context.EntityManager.GetComponent<PositionComponent>(context.Entity);
             if (position == null || target == null)
             {
-                GD.Print("IsTargetPositionInReach: No position or target");
                 return float.MaxValue;
             }
 

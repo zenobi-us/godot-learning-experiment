@@ -16,7 +16,7 @@ namespace behaviours
 
             return FluentBuilder.Create<BehaviourTreeBlackboardContext>()
                 .Sequence("Follow the mouse")
-                    .Do("Target the user mouse", BehaviourActions.SetEntityAsTargetFactory(UserMouseSystem.MouseEntityName))
+                    .Do("Target the user mouse", BehaviourActions.SetEntityAsTargetFactory(userMousePositionId))
                     .Selector("Choose")
                         .Subtree(HuntMouseBehaviour(patrolPositionId, userMousePositionId))
                         .Subtree(PatrolBehaviour(patrolPositionId, userMousePositionId))
@@ -30,8 +30,7 @@ namespace behaviours
             return FluentBuilder.Create<BehaviourTreeBlackboardContext>()
                 .Sequence("Hunt Target")
                     .Condition("Is mouse in reach?", BehaviourConditions.IsTargetEntityInReach(mousePositionId, 400))
-                    .Do("Stop patrolling", BehaviourActions.RemoveTargetPosition(patrolPositionId))
-                    .Do("Move to target", BehaviourActions.MoveToTargetPositionFactory(mousePositionId))
+                    .Do("Move to target", (ctx) => BehaviourActions.MoveToTargetEntityPosition(ctx, mousePositionId))
                 .End()
                 .Build();
         }
@@ -41,9 +40,11 @@ namespace behaviours
 
             return FluentBuilder.Create<BehaviourTreeBlackboardContext>()
                 .Sequence("Patrol")
-                    .Condition("Is mouse out of reach?", BehaviourConditions.IsTargetEntityOutOfReach(mousePositionId, 400))
-                    .Do("Set random position", BehaviourActions.SetRandomNearbyTargetPosition(patrolPositionId, 400))
-                    .Do("Patrol to position", BehaviourActions.MoveToTargetPositionFactory(patrolPositionId))
+                    .Do("Set random position", BehaviourActions.SetRandomNearbyTargetPosition(patrolPositionId, 400, 40))
+                    .Sequence("Patrol")
+                        .Condition("Is mouse out of reach?", BehaviourConditions.IsTargetEntityOutOfReach(mousePositionId, 400))
+                        .Do("Move to waypoint", BehaviourActions.MoveToTargetPositionFactory(patrolPositionId))
+                    .End()
                 .End()
                 .Build();
         }
