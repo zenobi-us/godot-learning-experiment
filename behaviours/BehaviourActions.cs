@@ -97,7 +97,7 @@ namespace behaviours
             };
         }
 
-        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetRandomNearbyTargetPosition(string targetId, int radius, int threshold = 40)
+        public static Func<BehaviourTreeBlackboardContext, BehaviourStatus> SetRandomNearbyTargetPosition(string targetId, int minimumRadius, int maximumRadius)
         {
             return (context) =>
             {
@@ -105,40 +105,41 @@ namespace behaviours
 
                 if (positionComponent == null)
                 {
+                    GD.PrintErr("SetRandomNearbyTargetPosition.entityWithoutPosition");
                     return BehaviourStatus.Failed;
                 }
 
                 var targetPositionComponent = context.EntityManager.GetComponent<TargetPositionComponent>(context.Entity, targetId);
 
-                if (targetPositionComponent != null && positionComponent.Position.DistanceTo(targetPositionComponent.Position) < targetPositionComponent.Threshold)
+                if (targetPositionComponent != null)
                 {
+                    GD.Print("SetRandomNearbyTargetPosition.removedExistingTarget");
                     context.EntityManager.RemoveComponent<TargetPositionComponent>(context.Entity, targetId);
-                    return BehaviourStatus.Succeeded;
                 }
+
+                GD.Print("SetRandomNearbyTargetPosition.computeNew");
 
                 try
                 {
-                    var max = Math.PI * 2;
-                    var min = 0;
-                    var randomDirection = new Random().NextDouble() * (max - min) + min;
-                    var randomDistance = new Random().Next(0, radius);
+                    var maxAngle = Math.PI * 2;
+                    var minAngle = 0;
+                    var randomDirection = new Random().NextDouble() * (maxAngle - minAngle) + minAngle;
+                    var randomDistance = new Random().Next(minimumRadius, maximumRadius);
+
                     var targetPosition = new Godot.Vector2(
                         positionComponent.Position.X + randomDistance * (float)Math.Cos(randomDirection),
                         positionComponent.Position.Y + randomDistance * (float)Math.Sin(randomDirection)
 
                     );
-                    if (targetPositionComponent == null)
-                    {
-                        context.EntityManager.AddComponent(context.Entity, new TargetPositionComponent(targetId, targetPosition, threshold));
-                        return BehaviourStatus.Succeeded;
-                    }
 
-                    targetPositionComponent.Position = targetPosition;
+                    GD.Print("SetRandomNearbyTargetPosition.createNew", targetPosition);
 
+                    context.EntityManager.AddComponent(context.Entity, new TargetPositionComponent(targetId, targetPosition));
                     return BehaviourStatus.Succeeded;
                 }
-                catch
+                catch (Exception ex)
                 {
+                    GD.Print("SetRandomNearbyTargetPosition.fatalError", ex);
                     return BehaviourStatus.Failed;
                 }
             };

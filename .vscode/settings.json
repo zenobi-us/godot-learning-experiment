@@ -2,6 +2,12 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {},
   "dotnet.defaultSolution": "Godot-rpg.sln",
+  "[csharp]": {
+    "editor.defaultFormatter": "csharpier.csharpier-vscode"
+  },
+  "[xml]": {
+    "editor.defaultFormatter": "csharpier.csharpier-vscode"
+  },
   "dart.flutterSdkPath": "/home/zenobius/.local/share/mise/installs/flutter/3.27.1-stable",
   "debug.javascript.defaultRuntimeExecutable": {
     "pwa-node": "/home/zenobius/.local/share/mise/shims/node"

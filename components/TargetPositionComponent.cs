@@ -10,25 +10,25 @@ namespace components
          * X,Y coordinates of the target position.
          */
         [Export]
-        public Vector2 Position { get; set; }
+        public Vector2 Position;
 
         /**
          * The remaining distance in which we 
          * consider the target to have been reached.
          */
         [Export]
-        public int Threshold { get; set; }
+        public int Radius;
 
 
         public TargetPositionComponent(
             string id,
             Vector2 position,
-            int threshold = 40
+            int radius = 40
         )
         {
             Id = id;
             Position = position;
-            Threshold = threshold;
+            Radius = radius;
         }
         public TargetPositionComponent(
         )
