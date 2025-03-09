@@ -34,7 +34,8 @@ jobs:
         id: release-please
         with:
           token: ${{secrets.ZENOBIUS_GODOTEXPERIEMENT_RELEASE_PLEASE_TOKEN}}
-          release-type: node
+          release-type: simple
+
       - name: Print Release Data
         run: |
           echo 'Release Data:'
