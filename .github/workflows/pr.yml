@@ -52,6 +52,8 @@ jobs:
 
       - name: Setup Godot Project
         uses: ./.github/actions/setup-godot-project
+        with:
+          Version: 4.3.0
 
       - name: Export Mise Env
         run: mise env --dotenv >> "$GITHUB_ENV"
