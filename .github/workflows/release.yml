@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  HUSKY: 0 # https://typicode.github.io/husky/how-to.html#ci-server-and-docker
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  actions: read
+  contents: write
+  deployments: write
+  id-token: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  Process:
+    runs-on: ubuntu-latest
+    outputs:
+      tagname: ${{ steps.release-please.outputs.tag_name }}
+      releases_created: ${{ steps.release-please.outputs.releases_created }}
+      prs_created: ${{ steps.release-please.outputs.prs_created }}
+      prs: ${{ steps.release-please.outputs.prs }}
+      pr: ${{ steps.release-please.outputs.pr }}
+      sha: ${{ steps.release-please.outputs.sha }}
+    steps:
+      - uses: googleapis/release-please-action@7987652d64b4581673a76e33ad5e98e3dd56832f #v4
+        id: release-please
+        with:
+          token: ${{secrets.ZENOBIUS_GODOTEXPERIEMENT_RELEASE_PLEASE_TOKEN}}
+          release-type: node
+      - name: Print Release Data
+        run: |
+          echo 'Release Data:'
+
+          echo '''
+            ${{ toJSON(steps.release-please.outputs) }}
+          '''
+
+  Deploy:
+    needs: Process
+    if: ${{ needs.Process.outputs.releases_created == 'true' }}
+    strategy:
+      matrix:
+        include:
+          - on: ubuntu-latest
+            platform: linux
+          # - on: windows-latest
+          #   platform: windows
+          # - on: macos-latest
+          #   platform: macos
+
+    runs-on: "${{ matrix.on }}"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 #v3
+        with:
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@5bb8f8c1911837cf42064e6490e7634fc842ee7e # v2
+
+      - name: Setup Godot Project
+        uses: ./.github/actions/setup-godot-project
+
+      - name: Export Mise Env
+        run: mise env --dotenv >> "$GITHUB_ENV"
+
+      - name: Build
+        run: |
+          mise run build \
+            --release \
+            --platform "${{ matrix.platform }}" \
+            --clean
+
+      - name: Zip Release
+        id: zip-dir
+        uses: TheDoctor0/zip-release@78b32010bd8b7722906817a1f9e2a7190a182d0c #0.7.6
+        with:
+          type: zip
+          filename: ${{ matrix.platform }}-game.zip
+          directory: ./dist
+          path: ./${{ matrix.platform }}/*
+
+      - uses: ./.github/actions/upload-release
+        with:
+          tagname: "${{needs.Process.outputs.tagname}}"
+          filepath: "${{ steps.zip-dir.outputs.zip-path }}"

@@ -1,0 +1,59 @@
+name: Upload Prerelease
+description: Creates or updates a release with a file upload, optionally as a prerelease
+
+inputs:
+  title:
+    description: The title of the release
+    required: true
+  tagname:
+    description: The tag name for the release
+    required: true
+  filepath:
+    description: The path to the file to upload
+    required: true
+  prerelease:
+    description: Whether the release should be marked as a prerelease (true/false)
+    required: false
+    default: "true"
+  notes:
+    description: The release notes
+    required: false
+    default: "Automated release"
+
+runs:
+  using: composite
+  steps:
+    - id: check-release
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      shell: bash
+      run: |
+        if gh release view "${{ inputs.tagname }}" > /dev/null 2>&1; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "empty"
+        fi
+
+    - env:
+        GITHUB_TOKEN: ${{ github.token }}
+      shell: bash
+      if: steps.check-release.outputs.exists == 'false'
+      run: |
+        # Conditionally add --prerelease flag based on input
+        PRERELEASE_FLAG=""
+        if [ "${{ inputs.prerelease }}" = "true" ]; then
+          PRERELEASE_FLAG="--prerelease"
+        fi
+        # Create the release with custom notes
+        gh release create "${{ inputs.tagname }}" \
+          --title "${{ inputs.title }}" \
+          --notes "${{ inputs.notes }}" \
+          $PRERELEASE_FLAG \
+          --target "${{ github.sha }}"
+
+    - env:
+        GITHUB_TOKEN: ${{ github.token }}
+      shell: bash
+      run: |
+        gh release upload "${{ inputs.tagname }}" "${{ inputs.filepath }}" --clobber

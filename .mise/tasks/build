@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+set -e
+
+#MISE sources=["**/*.cs", "**/*.tscn", "**/*.import", "**/*.png", "**/*.aseprite", "exports_presets.cfg", "global.json", "*.csproj", "*.sln"]
+#USAGE flag "-p --platform <platform>" help="Which platform to build for" {
+#USAGE   choices "linux" "windows" "macos"
+#USAGE   default "linux"
+#USAGE }
+#USAGE flag "-r --release" help="Build in release mode. otherwise build in debug mode. default is false"
+#USAGE flag "-c --clean" help="Clean the build directory before building" default="true"
+
+get_output_name() {
+    # shellcheck disable=SC2154 # (it's a global)
+    echo "dist/${usage_platform}/game"
+
+}
+
+get_output_mode() {
+    # shellcheck disable=SC2154 # (it's a global)
+    if [ "$usage_release" = "true" ]; then
+        echo "--export-release"
+        return 0
+    fi
+
+    echo "--export-debug"
+}
+
+create_build_dir() {
+    local target
+
+    target="$(dirname "$1")"
+
+    # shellcheck disable=SC2154 # (it's a global)
+    if [ "$usage_clean" = true ]; then
+        echo "Cleaning build directory..."
+        rm -rf "$target"
+    fi
+
+    echo "Creating build directory..."
+    mkdir -p "$target"
+
+}
+echo "Building..."
+
+output_filename="$(get_output_name)"
+
+echo "  Output filename: ${output_filename}"
+
+output_mode="$(get_output_mode)"
+
+create_build_dir "$output_filename"
+
+echo "Building game..."
+echo "Mode: ${output_mode}"
+
+# make a tmp backup and restore after build
+cp ./Godot-rpg.csproj ././Godot-rpg.csproj.bak
+
+godot --headless \
+    "${output_mode}" \
+    "${usage_platform}" \
+    "${output_filename}"
+
+mv ./Godot-rpg.csproj.bak ./Godot-rpg.csproj
+
+echo "Game built successfully!"

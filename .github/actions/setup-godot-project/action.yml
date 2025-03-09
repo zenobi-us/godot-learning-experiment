@@ -1,0 +1,47 @@
+---
+name: Setup Godot Project
+
+description: Setup a godot project on windows/macos/linux
+
+inputs:
+  Shell:
+    description: 'The shell to use. [bash or powershell]'
+    default: 'bash'
+    required: true
+  Version:
+    description: Version of godot to install
+    default: 4.0.0-beta16
+
+
+runs:
+  using: 'composite'
+
+  steps:
+      - run: which dotnet
+        shell: ${{ inputs.Shell }}
+
+      - uses: chickensoft-games/setup-godot@46198e5e97e81c09d8001962fdf4ed8c215bcb50 # v2.1.1
+        name: 🤖 Setup Godot
+        with:
+          # Version must include major, minor, and patch, and be >= 4.0.0
+          # Pre-release label is optional.
+          version: ${{ inputs.Version }} # also valid: 4.0.0.rc1 or 4.0.0, etc
+          # Use .NET-enabled version of Godot (the default is also true).
+          use-dotnet: true
+          # Include the Godot Export Templates (the default is false).
+          include-templates: true
+
+      - name: 📦 Restore Dependencies
+        shell: ${{ inputs.Shell }}
+        run: |
+          dotnet restore
+
+      - name: 🔬 Verify Setup
+        shell: ${{ inputs.Shell }}
+        run: |
+          dotnet --version
+          godot --version
+
+      - name: 🧑‍🔬 Generate .NET Bindings
+        shell: ${{ inputs.Shell }}
+        run: godot --headless --build-solutions --quit || exit 0
