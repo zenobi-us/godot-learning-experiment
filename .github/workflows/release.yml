@@ -81,13 +81,14 @@ jobs:
             --platform "${{ matrix.platform }}" \
             --clean
 
-      - name: Zip the dist/bin directory
+      - name: Zip Release
         id: zip-dir
-        uses: ./.github/actions/make-zip-file
+        uses: TheDoctor0/zip-release@78b32010bd8b7722906817a1f9e2a7190a182d0c #0.7.6
         with:
-          path-globs: |
-            ./dist/${{ matrix.platform }}/*
-          output-file: "${{ matrix.platform }}-game"
+          type: zip
+          filename: ${{ matrix.platform }}-game.zip
+          directory: ./dist
+          path: ./${{ matrix.platform }}/*
 
       - uses: ./.github/actions/upload-release
         with:

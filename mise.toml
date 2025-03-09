@@ -1,6 +1,8 @@
 [tools]
 act = "latest"
 dotnet = "7.0.410"
+# FIXME: https://github.com/jdx/mise/discussions/4440
+# "ubi:godotengine/godot" = { version = "4.3-stable", matching = "mono_{{ os() }}_x86_64", extract_all = "true" }
 
 [env]
 _.path = [
